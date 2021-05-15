@@ -1,0 +1,24 @@
+name: docker-compose-actions-workflow
+on:
+  push:
+    branches:
+      - main
+    pull_request:
+      branches:
+        - main
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Build the stack
+        run: docker-compose up -d
+      - name: NPM install
+        run: docker-compose exec -T jsdev npm install
+      - name: Lint Vue code
+        run: docker-compose exec -T jsdev ./node_modules/.bin/vue-cli-service lint --max-errors 0 --max-warnings 0 --no-fix
+      - name: Build Vue code
+        run: docker-compose exec -T jsdev ./node_modules/.bin/vue-cli-service build --target wc-async --inline-vue --name webcomponents 'src/*.vue'
+      - name: Run Integration tests in Django
+        run: docker-compose exec -T web /code/venv/bin/python3 /code/backend/manage.py test app --keepdb

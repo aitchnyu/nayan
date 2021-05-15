@@ -1,0 +1,26 @@
+venv/
+# output of collectstatic
+backend/static/
+backend/app/static/app/webpack-dist
+backend/appenv.yaml
+vueapp/node_modules
+#backend/app/static/app/webpack-dist/
+#frontend/node_modules/
+# Docker compose generates this volume for Postgres
+pgdata/
+
+.DS_Store
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+*.log
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
