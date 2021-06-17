@@ -9,16 +9,24 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('app', '0002_delete_something'),
+        ("app", "0002_delete_something"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Marker',
+            name="Marker",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField()),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.TextField()),
+                ("location", django.contrib.gis.db.models.fields.PointField(srid=4326)),
             ],
         ),
     ]

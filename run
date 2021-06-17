@@ -1,0 +1,65 @@
+#!/bin/bash
+
+if [[ -z $(which docker-compose) ]]
+then
+  echo "You don't have docker-compose installed. Exiting"
+  exit 1
+fi
+
+docker-compose up -d
+
+# https://github.com/adriancooney/Taskfile
+
+function init() {
+  echo "Running idempotent init script"
+  docker-compose exec webdev python3 -m venv /code/venv
+  pip install -r /code/backend/requirements.txt
+  docker-compose exec webdev /code/venv/bin/python3 /code/backend/manage.py migrate
+  docker-compose exec jsdev npm install
+}
+
+function clean() {
+  # Since docker is run as root, its generated files are root owned
+  docker-compose exec webdev rm -rf /code/venv && \
+    rm -rf /code/pgdata && \
+    rm -rf /code/vueapp/node_modules && \
+    rm -rf /code/backend/static && \
+    rm /code/backend/app/static/app/webpack-dist
+}
+
+function django-manage() {
+  docker-compose exec webdev /code/venv/bin/python3 /code/backend/manage.py "$@"
+}
+
+function django-manage-runserver() {
+    django-manage runserver 0.0.0.0:8000
+}
+
+function pip() {
+ docker-compose exec webdev /code/venv/bin/pip3 "$@"
+}
+
+function black() {
+ docker-compose exec webdev /code/venv/bin/black backend
+}
+
+function vue-cli() {
+  docker-compose exec jsdev ./node_modules/.bin/vue-cli-service "$@"
+}
+
+function vue-watch() {
+  vue-cli build --watch --target wc-async --inline-vue --name webcomponents 'src/*.vue'
+}
+
+function vue-lint-fix() {
+  vue-cli lint --fix
+}
+
+function help() {
+  echo "$0 <task> <args>"
+  echo "Tasks:"
+  compgen -A function | cat -n
+}
+
+# ./run executes help function by default
+"${@:-help}"

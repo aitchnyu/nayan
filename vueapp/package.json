@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@linusborg/vue-simple-portal": "^0.1.5",
+    "axios": "^0.21.1",
     "buefy": "^0.9.7",
     "core-js": "^3.6.5",
     "leaflet": "^1.7.1",
+    "lodash": "^4.17.21",
     "vue": "^2.6.11",
     "vue-simple-portal": "^1.0.3",
     "vue2-leaflet": "^2.7.0"

@@ -6,15 +6,15 @@ You must have docker-compose installed.
 
 To setup project:
 
-`./run_dev.sh init`
+`./run init`
 
 Run this on one terminal:
 
-`./run_dev.sh django-manage-runserver`
+`./run django-manage-runserver`
 
 And on another terminal:
 
-`./run_dev.sh vue-watch`
+`./run vue-watch`
 
 ## Deploying to Google Cloud Run
 

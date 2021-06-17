@@ -1,40 +1,40 @@
-  version: '3.5'
-  services:
-    db:
-      image: postgis/postgis
-      volumes:
-        - ./pgdata:/var/lib/postgresql/data
-      environment:
-        - POSTGRES_DB=postgres
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=postgres
-      ports:
-        - "5432:5432"
-    selenium:
-      image: selenium/standalone-firefox:88.0
-    webdev:
-      build:
-        context: .
-        target: dev
-      environment:
-        - POSTGRES_DB=postgres
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=postgres
-        - POSTGRES_HOST=db
-      tty: true
-      volumes:
-        - .:/code
-      ports:
-        - "8000:8000"
-      depends_on:
-        - db
-        - selenium
-    jsdev:
-      build:
-        context: .
-        target: jsdev
-      tty: true
-      volumes:
-        - .:/code
-  volumes:
-    pgdata:
+version: '3.5'
+services:
+  db:
+    image: postgis/postgis
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+  selenium:
+    image: selenium/standalone-firefox:88.0
+  webdev:
+    build:
+      context: .
+      target: dev
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=db
+    tty: true
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - selenium
+  jsdev:
+    build:
+      context: .
+      target: jsdev
+    tty: true
+    volumes:
+      - .:/code
+volumes:
+  pgdata:

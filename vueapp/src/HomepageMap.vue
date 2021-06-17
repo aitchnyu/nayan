@@ -13,7 +13,8 @@
       <l-map
         ref="map"
         :zoom.sync="zoom"
-        class="almost-fullscreen fullwidth"
+        :center="center"
+        style="height: 50vh; width: 100%"
       >
         <l-tile-layer
           url="https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamVzdmluIiwiYSI6ImNqeDV5emdpeTA2MHI0OG50c2N4OTZhd28ifQ.aehvE-ZEvTy-Yd0yMTSnWw"
@@ -21,23 +22,79 @@
           :options="{tileSize: 512, zoomOffset: -1}"
         />
         <l-marker
-          v-for="marker of markers"
-          :key="marker.id"
+          v-if="userLocationMarker"
           :icon="icon"
-          :lat-lng="marker.location"
+          :lat-lng="userLocationMarker"
         >
-          <l-popup>
-            {{ marker.name }}
-          </l-popup>
+          <l-tooltip :options="{permanent: true, interactive: true}">
+            <a :href="`/issues/${userLocationMarker.lat}/${userLocationMarker.lng}/1000`">Issues at your location</a>
+          </l-tooltip>
+        </l-marker>
+        <l-marker
+          :icon="icon"
+          :lat-lng="secondCenter"
+        >
+          <l-tooltip :options="{permanent: true, interactive: true}">
+            <a :href="`/issues/${secondCenter.lat}/${secondCenter.lng}/1000`">Issues here</a>
+          </l-tooltip>
+        </l-marker>
+        <l-marker
+          v-if="selected"
+          :icon="icon"
+          :lat-lng="selected.point"
+        >
+          <l-tooltip :options="{permanent: true, interactive: true}">
+            <a :href="`/issues/${selected.point.lat}/${selected.point.lng}/1000`">Issues around {{ selected.name }}</a>
+          </l-tooltip>
         </l-marker>
       </l-map>
+
+      <div
+        v-if="locationErrorMessage"
+        class="panel is-danger"
+      >
+        <p class="panel-heading">
+          Unable to get your location
+        </p>
+        <div class="panel-block is-active">
+          <div>
+            Please enable <a
+              href="https://www.gps-coordinates.net/geolocation"
+              target="_blank"
+              class="mx-1"
+            >your location services </a> and reload this page.
+            The error message was: <span class="has-text-danger mx-1"> {{ locationErrorMessage }} </span>
+          </div>
+        </div>
+      </div>
+
+      <b-autocomplete
+        :data="data"
+        placeholder="Place name"
+        field="name"
+        :loading="isFetching"
+        @typing="getAsyncData"
+        @select="option => selected = option"
+      >
+        <template slot-scope="props">
+          <div class="media">
+            <div class="media-content">
+              {{ props.option.name }}
+              <br>
+            </div>
+          </div>
+        </template>
+      </b-autocomplete>
     </div>
   </div>
 </template>
 
 <script>
+  import axios from 'axios'
+  import debounce from 'lodash/debounce'
   import L from 'leaflet'
-  import { LMap, LTileLayer, LIcon, LMarker, LPopup } from 'vue2-leaflet'
+  import { LMap, LTileLayer, LIcon, LMarker, LPopup, LTooltip } from 'vue2-leaflet'
+  import { BAutocomplete } from 'buefy/dist/components/autocomplete'
 
   import CircleIcon from '@/assets/circle.png'
   import PlusIcon from '@/assets/plus.png'
@@ -54,33 +111,63 @@
     iconAnchor: [10, 10], // point of the icon which will correspond to marker's location
   })
 
+  function getPosition(options) {
+    return new Promise(function (resolve, reject) {
+      navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    })
+  }
+
   export default {
     name: 'HomepageMap',
     components: {
-      LMap,LTileLayer, LPopup, LMarker
+      BAutocomplete, LMap, LTileLayer, LMarker, LTooltip
     },
     props: {stylesheet: {type:String, required: true}},
     data: function () {
+      const indiaCenter = {lat: 22.5, lng: 82.5}
       return {
-        ci: CircleIcon,
-        icon: icon,
+        // ci: CircleIcon,
+        icon: crosshairIcon,
         finishedLoading: false,
-        zoom: 2,
-        markers: CONSTANTS.markers,
-        extentPoints: CONSTANTS.extent_points
+        center: indiaCenter,
+        secondCenter: indiaCenter,
+        zoom: 17,
+        // markers: CONSTANTS.markers,
+        // extentPoints: CONSTANTS.extent_points,
+        userLocationMarker: null,
+        locationErrorMessage: null,
+
+        data: [],
+        selected: null,
+        isFetching: false
       }
     },
-    mounted () {
+    watch: {
+      selected: function (newSelected, oldSelected) {
+        if(newSelected) {
+          this.center = newSelected.point
+        }
+      }
+    },
+    async mounted () {
       window.homepageMap = this
-      console.log('mounted homepagemap')
       const map = this.getLeaflet()
-      let crosshair = new L.marker(map.getCenter(), {icon: crosshairIcon, clickable: false})
-      crosshair.addTo(map)
+      const that = this
       map.on('move', (e) => {
-        crosshair.setLatLng(map.getCenter())
+        that.secondCenter=map.getCenter()
       })
       map.once('moveend zoomend', () => this.finishedLoading = true)
-      map.fitBounds(L.polyline(this.extentPoints).getBounds())
+
+      try {
+        const location = await getPosition()
+        const center = {lat: location.coords.latitude, lng: location.coords.longitude}
+        this.userLocationMarker = center
+        this.center = center
+      } catch (e) {
+        // todo reraise
+        console.log('no location', e)
+        this.locationErrorMessage = e.message
+      }
     },
     methods: {
       getLeaflet () {
@@ -95,11 +182,28 @@
         const mapCenter = this.$refs.map.mapObject.getCenter()
         window.location = `/markers/create/${mapCenter.lat}/${mapCenter.lng}`
       },
-    }
-  };
+      getAsyncData: debounce(async function(name) {
+          if (!name.length) {
+            this.data = []
+            return
+          }
+          this.isFetching = true
+          const response = await axios.get(
+            '/api/points/search',
+            { params: {term: name, lat: this.center.lat, lng: this.center.lng} }
+          )
+          console.log(name, response.data.points)
+          this.data=response.data.points
+          // response.data.results.forEach( i => this.data.push(i))
+          this.isFetching = false
+        }
+        , 300)
+    },
+  }
 </script>
 
 <style>
+  @import "../node_modules/buefy/dist/buefy.css";
   @import "../node_modules/leaflet/dist/leaflet.css";
   .fullwidth {
     width: 100%;

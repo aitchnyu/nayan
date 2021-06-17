@@ -1,0 +1,47 @@
+{% extends 'app/base.html' %}
+{% load extratags %}
+{% load static %}
+{% block body %}
+  <script src="{% static 'app/webpack-dist/webcomponents.min.js' %}"></script>
+  <style>
+    @media (max-width: 769px) {
+      .columns-height {
+        height: 80vh;
+      }
+    }
+    @media not all and (max-width: 769px) {
+      .columns-height {
+        height: 100vh;
+      }
+      .scrollable-full-height-container {
+        max-height: 100vh;
+        overflow-y: scroll
+      }
+    }
+  </style>
+  <section class="columns">
+    <div class="column px-0 pb-0 mb-0 columns-height">
+      <div id="map-container" style="background-color: #e6e5e0; height: 100%; width: 100%">
+        <webcomponents-list-issues
+          id="list-issues"
+          stylesheet="{% static 'app/bulma.min.css'%}"
+          raw-issues="{{ issues | encodejson }}"
+          raw-bounds="{{ bounds | encodejson }}"
+        />
+      </div>
+    </div>
+    <div class="column scrollable-full-height-container">
+      <h3 class="title is-3">Nayan</h3>
+      <div id="sidebar-stuff"></div>
+      {% for issue in issues %}
+        <div class="pb-1">{{ issue.title }}</div>
+      {% endfor %}
+    </div>
+  </section>
+  <script type="text/javascript">
+    function getMapDimensions() {
+      const div = document.getElementById('map-container')
+      return {width: div.clientWidth, height: div.clientHeight}
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'app/base.html' %}
+{% load extratags %}
+{% load static %}
+{% block body %}
+  <script src="{% static 'app/webpack-dist/webcomponents.min.js' %}"></script>
+  <form method="post">
+    <div style="height: 50vh; width: 100%; background-color: #e6e5e0">
+      <webcomponents-select-point
+        initial-latitude="{{ latitude }}"
+        initial-longitude="{{ longitude }}"
+        stylesheet="{% static 'app/bulma.min.css'%}"/>
+    </div>
+    <div id="portal-target"></div>
+    {% for error in form.location.errors %}
+      <p class="help is-danger">
+        {{ error }}
+      </p>
+    {% endfor %}
+    {% include 'app/text_input.html' with field=form.title autofocus=True only %}
+    {% csrf_token %}
+    <button type="submit" class="button is-info">Report Issue</button>
+  </form>
+{% endblock %}
