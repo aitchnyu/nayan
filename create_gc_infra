@@ -1,13 +1,13 @@
 #!/bin/bash
 
-function create_bucket() {
+function bucket() {
   echo reserved for future use
   # Create bucket and make objects publically downloadable
   #  gsutil mb "gs://${2}"
   #  gsutil defacl set public-read "gs://${2}"
 }
 
-function create_db() {
+function db() {
   gcloud sql instances create $2 \
     `# Not HA` \
     --availability-type zonal \
@@ -22,8 +22,8 @@ function create_db() {
 
 function help() {
   echo Command to create GCS bucket and Cloud sql db.
-  echo ./create_gc_infra create_bucket [your bucket name]
-  echo ./create_gc_infra create_db [instance name] [region] [root password]
+  echo ./create_gc_infra bucket [your bucket name]
+  echo ./create_gc_infra db [instance name] [region] [root password]
 }
 
 # This command executes help function by default
