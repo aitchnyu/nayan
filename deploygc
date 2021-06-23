@@ -24,7 +24,7 @@ function build () {
 function manage() {
   ./ensure_gc_sql_proxy start
   # Create a db, treating this as idempotent
-  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" -U postgres -c  "create database db;"
+  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" -U postgres -c  "create database ${POSTGRES_DB};"
   # To above db, create postgis extension
   PGPASSWORD="$POSTGRES_PASSWORD" psql -h "/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" -d "${POSTGRES_DB}" -U postgres -c 'create extension if not exists postgis;'
   docker run --mount type=bind,source=/cloudsql,target=/cloudsql \
