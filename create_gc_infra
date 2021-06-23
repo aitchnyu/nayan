@@ -8,12 +8,12 @@ function bucket() {
 }
 
 function db() {
-  gcloud sql instances create $2 \
+  gcloud sql instances create $1 \
     `# Not HA` \
     --availability-type zonal \
     --database-version POSTGRES_13 \
-    --region $3 \
-    --root-password $4 \
+    --region $2 \
+    --root-password $3 \
     --storage-auto-increase \
     --storage-size 10 \
     --storage-type SSD \
