@@ -1,14 +1,13 @@
 #!/bin/bash
 
-if [[ $1 == "bucket" ]]
-then
+function create_bucket() {
   echo reserved for future use
   # Create bucket and make objects publically downloadable
   #  gsutil mb "gs://${2}"
   #  gsutil defacl set public-read "gs://${2}"
-elif [[ $1 == "db" ]]
-then
-  # Create Postgres db and enable postgis extension
+}
+
+function create_db() {
   gcloud sql instances create $2 \
     `# Not HA` \
     --availability-type zonal \
@@ -19,8 +18,13 @@ then
     --storage-size 10 \
     --storage-type SSD \
     --tier db-f1-micro
-else
+}
+
+function help() {
   echo Command to create GCS bucket and Cloud sql db.
-  echo ./create_gc_infra.sh bucket [your bucket name]
-  echo ./create_gc_infra.sh db [instance name] [region] [root password]
-fi
+  echo ./create_gc_infra create_bucket [your bucket name]
+  echo ./create_gc_infra create_db [instance name] [region] [root password]
+}
+
+# This command executes help function by default
+"${@:-help}"

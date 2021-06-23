@@ -14,7 +14,7 @@
       :zoom.sync="zoom"
       :center="center"
       :options="{zoomSnap: 0}"
-      v-bind:style="{position: 'absolute', height: '' + height + 'px', width: '' + width + 'px'}"
+      :style="{position: 'absolute', height: '' + height + 'px', width: '' + width + 'px'}"
     >
       <l-tile-layer
         url="https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamVzdmluIiwiYSI6ImNqeDV5emdpeTA2MHI0OG50c2N4OTZhd28ifQ.aehvE-ZEvTy-Yd0yMTSnWw"

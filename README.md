@@ -1,4 +1,4 @@
-# Nayan
+# Issues Tracking Project
 
 ## Setting up development environment
 
@@ -7,6 +7,10 @@ You must have docker-compose installed.
 To setup project:
 
 `./run init`
+
+And 
+
+`./run django-manage creategeo`
 
 Run this on one terminal:
 

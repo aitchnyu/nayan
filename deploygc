@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# From https://stackoverflow.com/a/38795846
+GMETADATA_ADDR=`dig +short metadata.google.internal`
+if [[ "${GMETADATA_ADDR}" == "" ]]; then
+    echo "It appears you are not running this in Cloud shell"
+    exit 1
+fi
+for MANDATORY_ENV_VAR in PROJECT_ID REGION SERVICE_NAME POSTGRES_INSTANCE POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD
+do
+  if [[ -z $(printf '%s' "${!MANDATORY_ENV_VAR}") ]]
+  then
+    echo "You didnt set env variable ${MANDATORY_ENV_VAR}"
+    exit 1
+  fi
+done
+
+function build () {
+  docker pull "gcr.io/${PROJECT_ID}/nayan-image"
+  docker build --target prod --tag "gcr.io/${PROJECT_ID}/nayan-image" .
+  docker push "gcr.io/${PROJECT_ID}/nayan-image"
+}
+
+function manage() {
+  ./ensure_gc_sql_proxy start
+  # Create a db, treating this as idempotent
+  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" -d "${POSTGRES_DB}" -U postgres -c  "create database db;"
+  # To above db, create postgis extension
+  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" -d "${POSTGRES_DB}" -U postgres -c 'create extension if not exists postgis;'
+  docker run --mount type=bind,source=/cloudsql,target=/cloudsql \
+    -e POSTGRES_DB="${POSTGRES_DB}" \
+    -e POSTGRES_USER="${POSTGRES_USER}" \
+    -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
+    -e POSTGRES_HOST="/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" \
+    -it "gcr.io/${PROJECT_ID}/nayan-image" python3 manage.py "$@"
+  ./ensure_gc_sql_proxy stop
+}
+
+function deploy() {
+  docker pull "gcr.io/${PROJECT_ID}/nayan-image"
+  gcloud_deploy () {
+    gcloud run deploy "${SERVICE_NAME}" \
+      --image "gcr.io/${PROJECT_ID}/nayan-image:latest" \
+      --platform managed \
+      --region "${REGION}" \
+      --max-instances 5 \
+      --cpu 1 \
+      --memory 256Mi \
+      --timeout 10 \
+      --concurrency 10 \
+      --ingress all \
+      --allow-unauthenticated \
+      --set-cloudsql-instances /cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE\
+      --update-env-vars DEBUG="false" \
+      --update-env-vars POSTGRES_DB="${POSTGRES_DB}" \
+      --update-env-vars POSTGRES_USER="${POSTGRES_USER}" \
+      --update-env-vars POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
+      --update-env-vars POSTGRES_HOST="/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" \
+      `# The comma in the value "foo.com,bar.com" is syntax error for gcloud dict-type args, so specify ";" as delimiter for ALLOWED_HOSTS as "^;^"` \
+      --update-env-vars "^;^ALLOWED_HOSTS=$1" \
+      --update-env-vars STATIC_URL="/static-$(openssl rand -hex 12)/"
+   }
+  hostnames() {
+    # We get a {"status": {"address": {"url": "https://example.appspot.com"...}...}...}
+    CLOUD_RUN_HOSTNAME=`gcloud run services describe "${SERVICE_NAME}" --platform managed --region "${REGION}" --format json | jq -r '.status.address.url' | cut -c9-`
+    if [[ $SITE ]]
+    then
+       echo "$CLOUD_RUN_HOSTNAME,$SITE"
+    else
+       echo $CLOUD_RUN_HOSTNAME
+    fi
+  }
+  gcloud run services describe "${SERVICE_NAME}" --platform managed --region "${REGION}"
+  # Is gcloud unable to find the service and returned a nonzero exit code? That means we have to do a first deploy with a fake hostname
+  if [[ $? != 0 ]]
+  then
+    echo Creating service
+    gcloud_deploy "fakehostname"
+    gcloud_deploy "`hostnames`"
+  else
+    echo "Updating service, site is `hostnames`"
+    gcloud_deploy "`hostnames`"
+  fi
+}
+
+function help() {
+  echo deploy to Cloud Run
+  printf "\n"
+  echo "$0 <task> <args>"
+  echo "Tasks:"
+  compgen -A function | cat -n
+}
+
+# This command executes help function by default
+"${@:-help}"

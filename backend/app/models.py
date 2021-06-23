@@ -30,9 +30,8 @@ class CivicPoint(models.Model):
     def __str__(self):
         return self.name
 
-    @classmethod
-    def create(cls, name: str, point: Point) -> "CivicPoint":
-        return cls.objects.create(name=name, point=point)
+    def __init__(self, name: str, point: Point):
+        super().__init__(name=name, point=point)
 
 
 # todo implemented for state only
@@ -46,9 +45,8 @@ class CivicArea(models.Model):
     def __str__(self):
         return self.name
 
-    @classmethod
-    def create(cls, name: str, area: MultiPolygon) -> "CivicArea":
-        return cls.objects.create(name=name, slug=slugify(name), area=area)
+    def __init__(self, name: str, area: MultiPolygon):
+        super().__init__(name=name, slug=slugify(name), area=area)
 
 
 class Issue(models.Model):

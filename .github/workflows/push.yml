@@ -15,7 +15,7 @@ jobs:
       - name: Build the stack
         run: docker-compose up -d
       - name: NPM install
-        run: docker-compose exec -T jsdev npm install
+        run: docker-compose exec -T jsdev npm install # todo move this elsewhere
       - name: Lint Vue code
         run: docker-compose exec -T jsdev ./node_modules/.bin/vue-cli-service lint --max-errors 0 --max-warnings 0 --no-fix
       - name: Build Vue code

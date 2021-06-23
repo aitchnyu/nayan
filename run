@@ -12,6 +12,7 @@ docker-compose up -d
 
 function init() {
   echo "Running idempotent init script"
+  docker-compose exec db psql -U postgres -c "create database db;"
   docker-compose exec webdev python3 -m venv /code/venv
   pip install -r /code/backend/requirements.txt
   docker-compose exec webdev /code/venv/bin/python3 /code/backend/manage.py migrate
@@ -32,7 +33,7 @@ function django-manage() {
 }
 
 function django-manage-runserver() {
-    django-manage runserver 0.0.0.0:8000
+  django-manage runserver 0.0.0.0:8000
 }
 
 function pip() {
@@ -61,5 +62,5 @@ function help() {
   compgen -A function | cat -n
 }
 
-# ./run executes help function by default
+# This command executes help function by default
 "${@:-help}"

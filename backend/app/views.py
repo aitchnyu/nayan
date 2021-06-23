@@ -72,7 +72,6 @@ class ListIssues(View):
         issues = models.Issue.objects.filter(location__contained=bounds.box).order_by(
             "-id"
         )
-        print(issues)
         issues_response = [
             {
                 "id": issue.id,
@@ -81,8 +80,6 @@ class ListIssues(View):
             }
             for issue in issues
         ]
-        # define area, fetch all issues, render map
-
         return render(
             request,
             "app/list_issues.html",
