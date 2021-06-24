@@ -50,7 +50,7 @@ function deploy() {
       --concurrency 10 \
       --ingress all \
       --allow-unauthenticated \
-      --set-cloudsql-instances /cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE\
+      --set-cloudsql-instances $PROJECT_ID:$REGION:$POSTGRES_INSTANCE\
       --update-env-vars DEBUG="false" \
       --update-env-vars POSTGRES_DB="${POSTGRES_DB}" \
       --update-env-vars POSTGRES_USER="${POSTGRES_USER}" \
@@ -70,6 +70,7 @@ function deploy() {
        echo $CLOUD_RUN_HOSTNAME
     fi
   }
+  echo "Following step may return ERROR: (gcloud.run.services.describe) Cannot find service..."
   gcloud run services describe "${SERVICE_NAME}" --platform managed --region "${REGION}"
   # Is gcloud unable to find the service and returned a nonzero exit code? That means we have to do a first deploy with a fake hostname
   if [[ $? != 0 ]]
