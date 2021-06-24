@@ -23,7 +23,7 @@ function build () {
 
 function manage() {
   ./ensure_gc_sql_proxy start
-  # Create a db, treating this as idempotent
+  echo "Create a db, treating this as idempotent. You may get an error that database already exists"
   PGPASSWORD="$POSTGRES_PASSWORD" psql -h "/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" -U postgres -c  "create database ${POSTGRES_DB};"
   # To above db, create postgis extension
   PGPASSWORD="$POSTGRES_PASSWORD" psql -h "/cloudsql/$PROJECT_ID:$REGION:$POSTGRES_INSTANCE" -d "${POSTGRES_DB}" -U postgres -c 'create extension if not exists postgis;'

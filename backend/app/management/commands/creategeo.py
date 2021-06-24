@@ -1,11 +1,18 @@
 from collections import defaultdict
+import os
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.gis import geos
 from django.contrib.gis.gdal import DataSource
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from app.models import CivicArea, CivicPoint
+
+
+def absolute_path(path: str) -> str:
+    return os.path.join(settings.BASE_DIR, path)
+
 
 # From https://www.caktusgroup.com/blog/2019/01/09/django-bulk-inserts/
 class BulkCreateManager(object):
@@ -58,7 +65,9 @@ class Command(BaseCommand):
         CivicPoint.objects.filter().delete()
 
         states_source = DataSource(
-            "/code/backend/geo-data/India_Boundary_Updated/Indian_State_Boundary/India_State_Boundary_Updated.shp"
+            absolute_path(
+                "geo-data/India_Boundary_Updated/Indian_State_Boundary/India_State_Boundary_Updated.shp"
+            )
         )
         for state in states_source[0]:
             state_name = str(state["stname"])
@@ -67,8 +76,8 @@ class Command(BaseCommand):
             if not isinstance(polygon, geos.MultiPolygon):
                 polygon = geos.MultiPolygon(polygon)
             bulk_create_manager.add(CivicArea(name=state_name, area=polygon))
-
-        # todo call done() here?
+            print(f"State: {state_name}")
+        bulk_create_manager.done()
 
         # districts = [
         #     'Tamil_Nadu_Boundary/Tamil_Nadu_Boundary_Updated.shp',
@@ -125,7 +134,7 @@ class Command(BaseCommand):
         # District.objects.update(geometry=Func(F('geometry'), function='ST_FlipCoordinates'),
         #                         centroid=Func(F('centroid'), function='ST_FlipCoordinates'))
 
-        po_source = open("/code/backend/geo-data/IN/IN.txt", "r", encoding="utf-8")
+        po_source = open(absolute_path("geo-data/IN/IN.txt"), "r", encoding="utf-8")
         scores = {}
         prev_district_name = None
         for line in po_source.readlines():
@@ -144,7 +153,7 @@ class Command(BaseCommand):
                 accuracy,
             ) = line.split("\t")
             if district_name != prev_district_name:
-                print(district_name)
+                print(f"Post offices for {district_name}")
                 prev_district_name = district_name
             lat = float(lat)
             lng = float(lng)
@@ -160,4 +169,4 @@ class Command(BaseCommand):
             )
         bulk_create_manager.done()
         print("accuracy scores", scores)
-        self.stdout.write(self.style.SUCCESS("Ran this script"))
+        self.stdout.write(self.style.SUCCESS("Loaded states and post offices"))
