@@ -136,7 +136,7 @@
       }
     },
     watch: {
-      secondCenter() {
+      centerMirror() {
         this.updateRecenterUrl()
       },
       zoom() {

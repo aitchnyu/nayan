@@ -10,6 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1.0, user-scalable=no">
     <title>{{ page_title }}</title>
     <link rel="stylesheet" href="{% static 'app/bulma.min.css'%}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:image" content="{% static 'app/preview.png'%}" />
+    <meta prefix="og: http://ogp.me/ns#" property="og:title" content="{{ page_title }}" />
   </head>
   <body>
     <div class="container">
