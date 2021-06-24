@@ -21,4 +21,4 @@ jobs:
       - name: Build Vue code
         run: docker-compose exec -T jsdev ./node_modules/.bin/vue-cli-service build --target wc-async --inline-vue --name webcomponents 'src/*.vue'
       - name: Run Integration tests in Django
-        run: docker-compose exec -T web /code/venv/bin/python3 /code/backend/manage.py test app --keepdb
+        run: docker-compose exec -T webdev /code/venv/bin/python3 /code/backend/manage.py test app --keepdb
