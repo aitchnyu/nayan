@@ -1,5 +1,5 @@
 {% load static %}
-{#{% load extratags %}#}
+{% load extratags %}
 
 <!DOCTYPE html>
 <html>
@@ -13,7 +13,7 @@
     <meta prefix="og: http://ogp.me/ns#" property="og:type" content="website" />
     <meta prefix="og: http://ogp.me/ns#" property="og:title" content="{{ page_title }}" />
     <meta prefix="og: http://ogp.me/ns#" property="og:description" content="A POC web app to track problems on a map." />
-    <meta prefix="og: http://ogp.me/ns#" property="og:image" content="{{  request._current_scheme_host }}/{% static 'app/preview.png'%}" />
+    <meta prefix="og: http://ogp.me/ns#" property="og:image" content="{{  request | base_url }}{% static 'app/preview.png'%}" />
     <meta prefix="og: http://ogp.me/ns#" property="og:url" content="{{ request.build_absolute_uri }}" />
   </head>
   <body>
