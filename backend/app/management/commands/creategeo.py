@@ -13,6 +13,9 @@ from app.models import CivicArea, CivicPoint
 def absolute_path(path: str) -> str:
     return os.path.join(settings.BASE_DIR, path)
 
+print('pwd', os.getcwd())
+
+print(absolute_path("geo-data/India_Boundary_Updated/Indian_State_Boundary/India_State_Boundary_Updated.shp"))
 
 # From https://www.caktusgroup.com/blog/2019/01/09/django-bulk-inserts/
 class BulkCreateManager(object):
