@@ -25,23 +25,29 @@ And on another terminal:
 Create a Project on GCP. We get an id like `project-311206`
 
 Login to Cloud Shell.
-```
-gcloud cloud-shell ssh --authorize-session
-```
 
-One time
-```
-git clone https://github.com/aitchnyu/markerae.git
-```
+`gcloud cloud-shell ssh --authorize-session`
 
 To use Google's container registry
-```gcloud auth configure-docker```
 
-Create DB and Bucket. Investigate scripts to find system requirements.
-```
-cd markerae
-./create_gc_infra.sh db [instance name] [region] [root password]
-```
+`gcloud auth configure-docker`
+
+Clone the repo to nayan directory.
+
+`git clone https://github.com/aitchnyu/nayan.git`
+
+Then `cd nayan` to enter the directory
+
+Create a postgres DB.
+
+`./create_gc_infra db <instance name> <region> <root password>`
+
+`./deploygc build`
+
+`./deploygc manage migrate`
+
+`./deploygc manage creategeo`
+
 
 ```
 export SITE=[site name]
@@ -65,3 +71,14 @@ cd markerae
 ./deploy_on_gc.sh manage createsuperuser
 ./deploy_on_gc.sh deploy
 ```
+
+## Technologies used
+- Django, GeoDjango
+- Postgres, Postgis
+- Mapbox
+- Ubuntu
+- Google Cloud Run, Cloud SQL
+- Docker, Docker Compose
+- Selenium
+- Vue, Webcomponents
+- Bulma CSS

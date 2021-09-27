@@ -15,6 +15,7 @@ register = template.Library()
 def hcaptcha_sitekey():
     return settings.HCAPTCHA_SITEKEY
 
+
 @register.filter
 def base_url(request: HttpRequest):
     return request._current_scheme_host
@@ -41,4 +42,3 @@ def none_for_1(value):
 def url_with_args(value: QueryDict, **kwargs):
     shit = {k: v for k, v in {**value.dict(), **kwargs}.items() if v}
     return "?" + urlencode(shit)
-

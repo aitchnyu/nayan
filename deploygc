@@ -16,6 +16,7 @@ do
 done
 
 function build () {
+  # Each restart of Cloud shell, we will lose this work. So we need to pull.
   docker pull "gcr.io/${PROJECT_ID}/nayan-image"
   docker build --target prod --tag "gcr.io/${PROJECT_ID}/nayan-image" .
   docker push "gcr.io/${PROJECT_ID}/nayan-image"

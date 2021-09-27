@@ -43,7 +43,6 @@ class Box:
         bottom_right_corner = g.fwd(lon, lat, 135, distance)
         bottom_left_corner = g.fwd(lon, lat, 225, distance)
         top_left_corner = g.fwd(lon, lat, 315, distance)
-
         self.box = geos.Polygon.from_bbox(
             (
                 bottom_left_corner[0],
@@ -52,7 +51,6 @@ class Box:
                 top_right_corner[1],
             )
         )
-
         self.response = [
             {"lat": top_right_corner[1], "lng": top_right_corner[0]},
             {"lat": top_left_corner[1], "lng": top_left_corner[0]},

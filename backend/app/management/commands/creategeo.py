@@ -13,6 +13,7 @@ from app.models import CivicArea, CivicPoint
 def absolute_path(path: str) -> str:
     return os.path.join(settings.BASE_DIR, path)
 
+
 # From https://www.caktusgroup.com/blog/2019/01/09/django-bulk-inserts/
 class BulkCreateManager(object):
     """
