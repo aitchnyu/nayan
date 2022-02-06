@@ -2,7 +2,6 @@
 {% load extratags %}
 {% load static %}
 {% block body %}
-  <script src="{% static 'app/webpack-dist/webcomponents.min.js' %}"></script>
   <style>
     @media (max-width: 769px) {
       .columns-height {
@@ -22,18 +21,18 @@
   <section class="columns">
     <div class="column px-0 pb-0 mb-0 columns-height">
       <div id="map-container" style="background-color: #e6e5e0; height: 100%; width: 100%">
-        <webcomponents-list-issues
-          id="list-issues"
-          stylesheet="{% static 'app/bulma.min.css'%}"
-          raw-issues="{{ issues | encodejson }}"
-          raw-bounds="{{ bounds | encodejson }}"
-        />
+        <div id="list-issues-map"></div>
       </div>
     </div>
     <div class="column scrollable-full-height-container">
-{#      <h3 class="title is-3">Nayan</h3>#}
+      <h3 class="title is-3">Issues at location</h3>
+      <div class="content">
+          You may pan or zoom in/out the map and see issues within the enclosed area with 'Recenter Map'.
+          You can click issues on the map or the list.
+          You may report an issue too.
+      </div>
       <div id="sidebar-stuff"></div>
-      {% for issue in issues %}
+      {% for issue in raw_data.issues %}
         <div class="pb-1">{{ issue.title }}</div>
       {% endfor %}
     </div>
@@ -43,5 +42,8 @@
       const div = document.getElementById('map-container')
       return {width: div.clientWidth, height: div.clientHeight}
     }
+    const rawData = {{ raw_data | encodejson }}
   </script>
+  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-listissues.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/webpack-dist/js/listissues.js' %}"></script>
 {% endblock %}

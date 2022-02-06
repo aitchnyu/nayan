@@ -14,8 +14,9 @@ function init() {
   echo "Running idempotent init script"
   docker-compose exec db psql -U postgres -c "create database db;"
   docker-compose exec webdev python3 -m venv /code/venv
-  pip install -r /code/backend/requirements.txt
+  docker-compose exec webdev /code/venv/bin/python3 -m pip install -r /code/backend/requirements.txt
   docker-compose exec webdev /code/venv/bin/python3 /code/backend/manage.py migrate
+  # todo break this out into own npm command?
   docker-compose exec jsdev npm install
 }
 
@@ -49,7 +50,11 @@ function vue-cli() {
 }
 
 function vue-watch() {
-  vue-cli build --watch --target wc-async --inline-vue --name webcomponents 'src/*.vue'
+  vue-cli build --watch
+}
+
+function vue-build() {
+  vue-cli build
 }
 
 function vue-lint-fix() {

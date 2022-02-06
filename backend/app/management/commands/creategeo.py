@@ -165,7 +165,7 @@ class Command(BaseCommand):
             # todo check if its within service area
             point = geos.Point(lng, lat)
             bulk_create_manager.add(
-                CivicPoint(f"{name}, {subdistrict_name}, {district_name}", point)
+                CivicPoint.create(f"{name}, {subdistrict_name}, {district_name}", point)
             )
         bulk_create_manager.done()
         print("accuracy scores", scores)

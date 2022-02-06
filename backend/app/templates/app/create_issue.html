@@ -2,13 +2,10 @@
 {% load extratags %}
 {% load static %}
 {% block body %}
-  <script src="{% static 'app/webpack-dist/webcomponents.min.js' %}"></script>
+  <h2 class="title">Report Issue</h2>
   <form method="post">
-    <div style="height: 50vh; width: 100%; background-color: #e6e5e0">
-      <webcomponents-select-point
-        initial-latitude="{{ latitude }}"
-        initial-longitude="{{ longitude }}"
-        stylesheet="{% static 'app/bulma.min.css'%}"/>
+    <div>
+        <div id="select-point"></div>
     </div>
     <div id="portal-target"></div>
     {% for error in form.location.errors %}
@@ -20,4 +17,9 @@
     {% csrf_token %}
     <button type="submit" class="button is-info">Report Issue</button>
   </form>
+  <script type="text/javascript">
+    const rawData = { latitude: {{ latitude }}, longitude: {{ longitude }}}
+  </script>
+  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-selectpoint.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/webpack-dist/js/selectpoint.js' %}"></script>
 {% endblock %}

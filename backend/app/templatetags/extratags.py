@@ -21,16 +21,9 @@ def base_url(request: HttpRequest):
     return request._current_scheme_host
 
 
-# todo remove
-# @register.filter
-# def js_constants_def(value):
-#     encoded = json.dumps(value, cls=DjangoJSONEncoder).replace("\"", "\\\"")
-#     return f"""let CONSTANTS = JSON.parse("{encoded}")"""
-
-
 @register.filter
 def encodejson(value):
-    return json.dumps(value, cls=DjangoJSONEncoder)
+    return mark_safe(json.dumps(value, cls=DjangoJSONEncoder))
 
 
 @register.filter

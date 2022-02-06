@@ -2,10 +2,26 @@
 {% load extratags %}
 {% load static %}
 {% block body %}
-  <script src="{% static 'app/webpack-dist/webcomponents.min.js' %}"></script>
   <div id="main">
-    <div style="height: 50vh; width: 100%; background-color: #e6e5e0">
-      <webcomponents-homepage-map id="homepage-map" stylesheet="{% static 'app/bulma.min.css'%}"/>
+    <div id="homepage-map">
+      <!-- This prevents too much layout shift -->
+      <div style="height: 75vh; width: 100%; background-color: #e6e5e0">
+      </div>
     </div>
   </div>
+  <h1 class="title">Toy project for reporting civic issues</h1>
+  <div class="content">
+    Created by Jesvin. You may explore by
+    <ul>
+      <li>See device location at 'Issues at your location' (enable location in your browser)</li>
+      <li>Pan the map to desired place and click 'Issues here'</li>
+      <li>Pan to select Indian post offices with 'Find place by name' (not accurate)</li>
+    </ul>
+    This is my experiment with Django, Vue 2, Bulma, Docker, Google Cloud Services etc.
+    This is not meant for production use. You may contact if you are a hackathon member or any kind of volunteer who needs a geo-enabled app.
+    This is developed in this <a href="https://github.com/aitchnyu/nayan">Github repo</a>
+  </div>
+  <br>
+  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-home.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/webpack-dist/js/home.js' %}"></script>
 {% endblock %}

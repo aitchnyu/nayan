@@ -70,21 +70,25 @@ class ListIssues(View):
         issues = models.Issue.objects.filter(location__contained=bounds.box).order_by(
             "-id"
         )
-        issues_response = [
-            {
-                "id": issue.id,
-                "title": issue.title,
-                "location": {"lat": issue.location.y, "lng": issue.location.x},
-            }
-            for issue in issues
-        ]
         return render(
             request,
             "app/list_issues.html",
             {
                 "page_title": "Issues",  # make some seo friendly title
-                "issues": issues_response,
-                "bounds": bounds.response,
+                "raw_data": {
+                    "issues": [
+                        {
+                            "id": issue.id,
+                            "title": issue.title,
+                            "location": {
+                                "lat": issue.location.y,
+                                "lng": issue.location.x,
+                            },
+                        }
+                        for issue in issues
+                    ],
+                    "bounds": bounds.response,
+                },
             },
         )
 
@@ -126,7 +130,10 @@ class CreateIssue(View):
                     form.cleaned_data["longitude"], form.cleaned_data["latitude"]
                 ),
             )
-        return redirect(reverse("home"))
+        # todo redirect to issue page
+        return redirect(
+            reverse("list_issues", args=(issue.location.y, issue.location.x, 1000))
+        )
 
 
 class SearchPoints(View):

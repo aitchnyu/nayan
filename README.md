@@ -46,6 +46,8 @@ Create a postgres DB.
 
 `./deploygc manage migrate`
 
+todo move this down
+
 `./deploygc manage creategeo`
 
 

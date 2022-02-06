@@ -27,8 +27,9 @@ class CivicPoint(models.Model):
     def __str__(self):
         return self.name
 
-    def __init__(self, name: str, point: Point):
-        super().__init__(name=name, point=point)
+    @classmethod
+    def create(cls, name: str, point: Point):
+        return cls(name=name, point=point)
 
 
 # todo implemented for state only
@@ -41,9 +42,6 @@ class CivicArea(models.Model):
 
     def __str__(self):
         return self.name
-
-    def __init__(self, name: str, area: MultiPolygon):
-        super().__init__(name=name, slug=slugify(name), area=area)
 
 
 class TagQuerySet(models.QuerySet):
