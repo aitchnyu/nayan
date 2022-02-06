@@ -21,5 +21,12 @@
       {% block body %}
       {% endblock %}
     </div>
+    {% if raw_data %}
+      <script type="text/javascript">
+        const rawData = {{ raw_data | encodejson }}
+      </script>
+    {% endif %}
+    {% block extrascripts %}
+    {% endblock %}
   </body>
 </html>

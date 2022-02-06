@@ -12,6 +12,10 @@ const pages = {
   selectpoint: {
     entry: './src/selectPoint.js',
     template: 'public/index.html'
+  },
+  viewissue: {
+    entry: './src/viewIssue.js',
+    template: 'public/index.html'
   }
 }
 

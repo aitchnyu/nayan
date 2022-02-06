@@ -92,6 +92,16 @@ class ListIssues(View):
             },
         )
 
+class ViewIssue(View):
+    def get(self, request: Request , issue_id: int):
+        issue = models.Issue.objects.get(id=issue_id)
+        return render(request,
+                      'app/view_issue.html',
+                      {'issue': issue,
+                       'page_title': issue.title,
+                       'raw_data': {'lat': issue.location.y, 'lng': issue.location.x},  # Yes, this is inverted
+                })
+
 
 class CreateIssue(View):
     def get(self, request: Request, latitude: float, longitude: float):
@@ -105,8 +115,7 @@ class CreateIssue(View):
             {
                 "form": form,
                 "page_title": "Report Issue",
-                "latitude": latitude,
-                "longitude": longitude,
+                'raw_data': {"latitude": latitude, "longitude": longitude}
             },
         )
 
@@ -130,9 +139,8 @@ class CreateIssue(View):
                     form.cleaned_data["longitude"], form.cleaned_data["latitude"]
                 ),
             )
-        # todo redirect to issue page
         return redirect(
-            reverse("list_issues", args=(issue.location.y, issue.location.x, 1000))
+            reverse("view_issue", args=(issue.id,)), permanent=True
         )
 
 

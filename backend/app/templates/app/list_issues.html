@@ -33,16 +33,21 @@
       </div>
       <div id="sidebar-stuff"></div>
       {% for issue in raw_data.issues %}
-        <div class="pb-1">{{ issue.title }}</div>
+        <div class="pb-1">
+          <a href="{% url 'view_issue' issue.id %}?slug={{ issue.title | slugify }}">
+            {{ issue.title }}
+          </a>
+        </div>
       {% endfor %}
     </div>
   </section>
+{% endblock %}
+{% block extrascripts %}
   <script type="text/javascript">
     function getMapDimensions() {
       const div = document.getElementById('map-container')
       return {width: div.clientWidth, height: div.clientHeight}
     }
-    const rawData = {{ raw_data | encodejson }}
   </script>
   <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-listissues.js' %}"></script>
   <script type="text/javascript" src="{% static 'app/webpack-dist/js/listissues.js' %}"></script>

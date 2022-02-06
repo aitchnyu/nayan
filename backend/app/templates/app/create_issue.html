@@ -17,9 +17,8 @@
     {% csrf_token %}
     <button type="submit" class="button is-info">Report Issue</button>
   </form>
-  <script type="text/javascript">
-    const rawData = { latitude: {{ latitude }}, longitude: {{ longitude }}}
-  </script>
+{% endblock %}
+{% block extrascripts %}
   <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-selectpoint.js' %}"></script>
   <script type="text/javascript" src="{% static 'app/webpack-dist/js/selectpoint.js' %}"></script>
 {% endblock %}

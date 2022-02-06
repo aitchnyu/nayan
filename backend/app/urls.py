@@ -28,5 +28,10 @@ urlpatterns = [
         views.CreateIssue.as_view(),
         name="create_issue",
     ),
+path(
+        "issues/<int:issue_id>/",
+        views.ViewIssue.as_view(),
+        name="view_issue",
+    ),
     path("api/points/search", views.SearchPoints.as_view(), name="search_points"),
 ]
