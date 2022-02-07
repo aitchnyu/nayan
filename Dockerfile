@@ -23,10 +23,11 @@ RUN mkdir /code
 WORKDIR /code/vueapp
 ENV WEBPACK_DIST=../backend/app/static/app/webpack-dist
 
+#todo make this use run instead
 FROM jsbase as jsprod
 ENV WEBPACK_DIST ./webpack-dist
 COPY vueapp/ ./
-RUN npm install && ./node_modules/.bin/vue-cli-service build --target wc-async --inline-vue --name webcomponents 'src/*.vue'
+RUN npm install && ./node_modules/.bin/vue-cli build
 
 FROM base as prod
 COPY backend/requirements.txt requirements.txt

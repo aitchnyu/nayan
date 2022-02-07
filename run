@@ -8,7 +8,7 @@ fi
 
 docker-compose up -d
 
-# https://github.com/adriancooney/Taskfile
+# Functions format is from https://github.com/adriancooney/Taskfile
 
 function init() {
   echo "Running idempotent init script"
