@@ -75,12 +75,11 @@ cd markerae
 ```
 
 ## Technologies used
-- Django, GeoDjango
-- Postgres, Postgis
-- Mapbox
-- Ubuntu
-- Google Cloud Run, Cloud SQL
+- Django, GeoDjango with Postgres, Postgis
+- Vue.js
+- Leaflet with Mapbox
+- Cloudflare
+- Google Cloud Run, Cloud SQL, Ubuntu
 - Docker, Docker Compose
 - Selenium
-- Vue, Webcomponents
 - Bulma CSS

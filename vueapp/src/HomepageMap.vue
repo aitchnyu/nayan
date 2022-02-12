@@ -44,7 +44,6 @@
           </l-tooltip>
         </l-marker>
       </l-map>
-
       <div
         v-if="locationErrorMessage"
         class="panel is-danger"
@@ -63,34 +62,15 @@
           </div>
         </div>
       </div>
-
-      <b-autocomplete
-        :data="data"
-        placeholder="Find place by name (ex, Kaloor)"
-        field="name"
-        :loading="isFetching"
-        @typing="getAsyncData"
-        @select="option => selected = option"
-      >
-        <template slot-scope="props">
-          <div class="media">
-            <div class="media-content">
-              {{ props.option.name }}
-              <br>
-            </div>
-          </div>
-        </template>
-      </b-autocomplete>
+      <select-place :center="secondCenter" :onSelect="selectPlace"/>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-import debounce from 'lodash/debounce'
 import L from 'leaflet'
 import { LMap, LTileLayer, LMarker, LTooltip } from 'vue2-leaflet'
-import { BAutocomplete } from 'buefy/dist/components/autocomplete'
+import SelectPlace from './SelectPlace'
 
 import PlusIcon from '@/assets/plus.png'
 
@@ -100,92 +80,59 @@ const crosshairIcon = L.icon({
   iconAnchor: [10, 10] // point of the icon which will correspond to marker's location
 })
 
-function getPosition (options) {
-  return new Promise(function (resolve, reject) {
-    navigator.geolocation.getCurrentPosition(resolve, reject, options)
-  })
-}
-
 export default {
   name: 'HomepageMap',
   components: {
-    BAutocomplete, LMap, LTileLayer, LMarker, LTooltip
+    LMap, LTileLayer, LMarker, LTooltip, SelectPlace
   },
   data: function () {
     const indiaCenter = { lat: 22.5, lng: 82.5 }
     return {
-      // ci: CircleIcon,
       icon: crosshairIcon,
       finishedLoading: false,
       center: indiaCenter,
       secondCenter: indiaCenter,
       zoom: 17,
-      // markers: CONSTANTS.markers,
-      // extentPoints: CONSTANTS.extent_points,
       userLocationMarker: null,
       locationErrorMessage: null,
-
-      data: [],
-      selected: null,
-      isFetching: false
-    }
-  },
-  watch: {
-    selected: function (newSelected, oldSelected) {
-      if (newSelected) {
-        this.center = newSelected.point
-      }
+      selected: null
     }
   },
   async mounted () {
-    window.homepageMap = this
     const map = this.getLeaflet()
     const that = this
+    // Moving doesnt update state
     map.on('move', (e) => {
       that.secondCenter = map.getCenter()
     })
     map.once('moveend zoomend', () => { this.finishedLoading = true })
 
     try {
-      const location = await getPosition()
+      const location = await this.getPosition()
       const center = { lat: location.coords.latitude, lng: location.coords.longitude }
       this.userLocationMarker = center
       this.center = center
     } catch (e) {
-      // todo reraise
-      console.log('no location', e)
       this.locationErrorMessage = e.message
     }
   },
   methods: {
+    // This is mocked
+    // istanbul ignore next
+    getPosition (options) {
+      return new Promise(function (resolve, reject) {
+        navigator.geolocation.getCurrentPosition(resolve, reject, options)
+      })
+    },
     getLeaflet () {
       return this.$refs.map.mapObject
     },
-    diagnostics () {
-      const center = this.getLeaflet().getCenter()
-      return JSON.stringify({ center: [center.lat, center.lng] })
-    },
-    createMarker () {
-      console.log('create marker', this)
-      const mapCenter = this.$refs.map.mapObject.getCenter()
-      window.location = `/markers/create/${mapCenter.lat}/${mapCenter.lng}`
-    },
-    getAsyncData: debounce(async function (name) {
-      if (!name.length) {
-        this.data = []
-        return
+    selectPlace (place) {
+      if (place) {
+        this.getLeaflet().panTo(place.point)
+        this.selected = place
       }
-      this.isFetching = true
-      const response = await axios.get(
-        '/api/points/search',
-        { params: { term: name, lat: this.center.lat, lng: this.center.lng } }
-      )
-      console.log(name, response.data.points)
-      this.data = response.data.points
-      // response.data.results.forEach( i => this.data.push(i))
-      this.isFetching = false
     }
-    , 300)
   }
 }
 </script>

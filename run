@@ -26,6 +26,9 @@ function clean() {
     rm -rf /code/pgdata && \
     rm -rf /code/vueapp/node_modules && \
     rm -rf /code/backend/static && \
+    rm -rf /code/htmlcov && \
+    rm /code/.coverage && \
+    rm -rf /code/vueapp/coverage && \
     rm /code/backend/app/static/app/webpack-dist
 }
 
@@ -37,12 +40,29 @@ function django-manage-runserver() {
   django-manage runserver 0.0.0.0:8000
 }
 
+function django-test() {
+  django-manage test app
+}
+
+function django-test-coverage() {
+  docker-compose exec webdev /code/venv/bin/coverage run /code/backend/manage.py test app
+  docker-compose exec webdev /code/venv/bin/coverage report
+  docker-compose exec webdev /code/venv/bin/coverage html
+  read -e -p "Open coverage report in browser? [Y/n] " YN
+  [[ $YN == "y" || $YN == "Y" || $YN == "" ]] && open htmlcov/index.html
+}
+
+
 function pip() {
  docker-compose exec webdev /code/venv/bin/pip3 "$@"
 }
 
 function black() {
  docker-compose exec webdev /code/venv/bin/black backend
+}
+
+function npm() {
+ docker-compose exec jsdev npm "$@"
 }
 
 function vue-cli() {
@@ -53,11 +73,22 @@ function vue-watch() {
   vue-cli build --watch
 }
 
+function vue-test() {
+  vue-cli test:unit
+}
+
+function vue-test-coverage() {
+  vue-cli test:unit --coverage
+  read -e -p "Open coverage report in browser? [Y/n] " YN
+  [[ $YN == "y" || $YN == "Y" || $YN == "" ]] && open vueapp/coverage/lcov-report/index.html
+}
+
+
 function vue-build() {
   vue-cli build
 }
 
-function vue-lint-fix() {
+function vue-lint() {
   vue-cli lint --fix
 }
 

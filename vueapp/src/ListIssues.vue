@@ -37,7 +37,6 @@
         color="#bbb"
       />
     </l-map>
-
     <portal selector="#sidebar-stuff">
       <div class="buttons">
         <a class="button is-info" :href="`/issues/${centerMirror.lat}/${centerMirror.lng}/create`">
@@ -53,6 +52,7 @@
 
 <script>
 import L from 'leaflet'
+import kebabCase from 'lodash/kebabCase'
 import { Portal } from '@linusborg/vue-simple-portal'
 import { LMap, LTileLayer, LMarker, LPopup, LPolygon } from 'vue2-leaflet'
 
@@ -71,20 +71,6 @@ const crosshairIcon = L.icon({
   iconAnchor: [10, 10] // point of the icon which will correspond to marker's location
 })
 
-function slugify (string) {
-  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
-  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
-  const p = new RegExp(a.split('').join('|'), 'g')
-
-  return string.toString().toLowerCase()
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
-    .replace(/&/g, '-and-') // Replace & with 'and'
-    .replace(/[^\w-]+/g, '') // Remove all non-word characters
-    .replace(/--+/g, '-') // Replace multiple - with single -
-    .replace(/^-+/, '') // Trim - from start of text
-    .replace(/-+$/, '') // Trim - from end of text
-}
 
 export default {
   name: 'ListIssues',
@@ -108,7 +94,7 @@ export default {
       centerMirror: indiaCenter,
       zoom: 17,
       bounds: this.rawBounds,
-      issues: this.rawIssues.map(i => ({ ...i, slug: slugify(i.title) })),
+      issues: this.rawIssues.map(i => ({ ...i, slug: kebabCase(i.title) })),
 
       width: mapDimensions.width,
       height: mapDimensions.height,
@@ -116,21 +102,14 @@ export default {
       recenterUrl: ''
     }
   },
-  watch: {
-    centerMirror () {
-      this.updateRecenterUrl()
-    },
-    zoom () {
-      this.updateRecenterUrl()
-    }
-  },
   async mounted () {
     window.addEventListener('resize', this.onResize)
     window.listIssues = this
     const map = this.getLeaflet()
     const that = this
-    map.on('move', (e) => {
+    map.on('moveend zoomend', (e) => {
       that.centerMirror = map.getCenter()
+      that.updateRecenterUrl()
     })
     map.once('moveend zoomend', () => { this.finishedLoading = true })
     map.fitBounds(L.polyline(this.bounds).getBounds())
@@ -145,24 +124,16 @@ export default {
       this.width = shit.width
       this.height = shit.height
     },
-    diagnostics () {
-      const center = this.getLeaflet().getCenter()
-      return JSON.stringify({ center: [center.lat, center.lng] })
-    },
-    createMarker () {
-      console.log('create marker', this)
-      const mapCenter = this.$refs.map.mapObject.getCenter()
-      window.location = `/markers/create/${mapCenter.lat}/${mapCenter.lng}`
-    },
     updateRecenterUrl () {
-      // todo remove this crap
       const map = this.getLeaflet()
       const mapCenter = map.getCenter()
       const mapBounds = map.getBounds()
       // Assuming that map width is usually less than its height.
       let distance = parseInt(mapBounds.getNorthWest().distanceTo(mapBounds.getNorthEast()) / 2)
-      if (distance > 50000) {
-        distance = 50000
+      // Since in a test environment, the map has corners same as each other, it has a distance of 0 and can't be tested
+      // istanbul ignore next
+      if (distance > 100000) {
+        distance = 100000
       }
       this.recenterUrl = `/issues/${mapCenter.lat}/${mapCenter.lng}/${distance}`
     }

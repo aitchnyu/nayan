@@ -23,6 +23,7 @@
     </div>
     {% if raw_data %}
       <script type="text/javascript">
+        // This is to populate js context from server side
         const rawData = {{ raw_data | encodejson }}
       </script>
     {% endif %}

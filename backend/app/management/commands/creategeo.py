@@ -64,20 +64,20 @@ class Command(BaseCommand):
         CivicArea.objects.filter().delete()
         CivicPoint.objects.filter().delete()
 
-        states_source = DataSource(
-            absolute_path(
-                "geo-data/India_Boundary_Updated/Indian_State_Boundary/India_State_Boundary_Updated.shp"
-            )
-        )
-        for state in states_source[0]:
-            state_name = str(state["stname"])
-            polygon = state.geom.geos
-            # TypeError: Cannot set State2 SpatialProxy (MULTIPOLYGON) with value of type: <class 'django.contrib.gis.geos.polygon.Polygon'>
-            if not isinstance(polygon, geos.MultiPolygon):
-                polygon = geos.MultiPolygon(polygon)
-            bulk_create_manager.add(CivicArea(name=state_name, area=polygon))
-            print(f"State: {state_name}")
-        bulk_create_manager.done()
+        # states_source = DataSource(
+        #     absolute_path(
+        #         "geo-data/India_Boundary_Updated/Indian_State_Boundary/India_State_Boundary_Updated.shp"
+        #     )
+        # )
+        # for state in states_source[0]:
+        #     state_name = str(state["stname"])
+        #     polygon = state.geom.geos
+        #     # TypeError: Cannot set State2 SpatialProxy (MULTIPOLYGON) with value of type: <class 'django.contrib.gis.geos.polygon.Polygon'>
+        #     if not isinstance(polygon, geos.MultiPolygon):
+        #         polygon = geos.MultiPolygon(polygon)
+        #     bulk_create_manager.add(CivicArea(name=state_name, area=polygon))
+        #     print(f"State: {state_name}")
+        # bulk_create_manager.done()
 
         # districts = [
         #     'Tamil_Nadu_Boundary/Tamil_Nadu_Boundary_Updated.shp',

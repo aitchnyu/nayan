@@ -18,7 +18,6 @@
           :lat-lng="secondCenter"
         />
       </l-map>
-      <portal selector="#portal-target">
         <input
           type="hidden"
           name="latitude"
@@ -29,13 +28,11 @@
           name="longitude"
           :value="secondCenter.lng"
         >
-      </portal>
     </div>
   </div>
 </template>
 
 <script>
-import { Portal } from '@linusborg/vue-simple-portal'
 import L from 'leaflet'
 import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
 
@@ -50,18 +47,16 @@ const crosshairIcon = L.icon({
 export default {
   name: 'SelectPoint',
   components: {
-    LMap, LTileLayer, LMarker, Portal
+    LMap, LTileLayer, LMarker
   },
   props: {
-    initialLatitude: { type: Number, required: true },
-    initialLongitude: { type: Number, required: true }
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true }
   },
   data: function () {
-    const center = { lat: this.initialLatitude, lng: this.initialLongitude }
+    const center = { lat: this.lat, lng: this.lng }
     return {
-      // ci: CircleIcon,
       icon: crosshairIcon,
-      // finishedLoading: false,
       center: center,
       secondCenter: center,
       zoom: 17
@@ -70,14 +65,17 @@ export default {
   async mounted () {
     const map = this.$refs.map.mapObject
     const that = this
+    // Center does not sync back when map moves
     map.on('move', (e) => {
       that.secondCenter = map.getCenter()
     })
   },
   methods: {
-    diagnostics () {
-      const center = this.$refs.map.mapObject.getCenter()
-      return JSON.stringify({ center: [center.lat, center.lng] })
+    getLeafletCenter () {
+      return this.$refs.map.mapObject.getCenter()
+    },
+    setLeafletCenter (lat, lng) {
+      this.$refs.map.mapObject.panTo({ lat: lat, lng: lng })
     }
   }
 }
