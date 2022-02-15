@@ -20,6 +20,7 @@ def base_url(request: HttpRequest):
 def encodejson(value):
     return mark_safe(json.dumps(value, cls=DjangoJSONEncoder))
 
+
 # todo For later use
 
 # @register.simple_tag
