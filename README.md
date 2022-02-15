@@ -5,20 +5,26 @@
 You must have docker-compose installed.
 
 To setup project:
+```
+$ ./run init
 
-`./run init`
+$ `./run django-manage creategeo`
 
-And 
+# Run this on one terminal:
 
-`./run django-manage creategeo`
+$ ./run django-manage-runserver
 
-Run this on one terminal:
+# And on another terminal:
 
-`./run django-manage-runserver`
+$ ./run vue-watch
 
-And on another terminal:
+```
 
-`./run vue-watch`
+To do unit testing and linting for Django and Vue:
+
+`$ ./run checkall`
+
+This is used in CI too.
 
 ## Deploying to Google Cloud Run
 
@@ -32,7 +38,7 @@ To use Google's container registry
 
 `gcloud auth configure-docker`
 
-Clone the repo to nayan directory.
+In a cloud shell, clone the repo to nayan directory.
 
 `git clone https://github.com/aitchnyu/nayan.git`
 
@@ -65,7 +71,7 @@ export  POSTGRES_INSTANCE=[instance name]
 ```
 
 ```
-cd markerae
+cd nayan
 ./create_gc_infra.sh db [instance name] [region] [root password]
 ./deploy_on_gc.sh manage build
 ./deploy_on_gc.sh manage showmigrations
@@ -81,5 +87,5 @@ cd markerae
 - Cloudflare
 - Google Cloud Run, Cloud SQL, Ubuntu
 - Docker, Docker Compose
-- Selenium
+- Playwright
 - Bulma CSS

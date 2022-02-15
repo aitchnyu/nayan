@@ -93,19 +93,12 @@ function vue-test-coverage() {
   [[ $YN == "y" || $YN == "Y" || $YN == "" ]] && open vueapp/coverage/lcov-report/index.html
 }
 
-
 function vue-build() {
   vue-cli build
 }
 
 function vue-lint() {
   vue-cli lint --fix
-}
-
-function help() {
-  echo "$0 <task> <args>"
-  echo "Tasks:"
-  compgen -A function | cat -n
 }
 
 function checkall() {
@@ -124,6 +117,11 @@ function checkall() {
   echo All steps in check-all were successful
 }
 
+function help() {
+  echo "$0 <task> <args>"
+  echo "Tasks:"
+  compgen -A function | cat -n
+}
 
 # This command executes help function by default
 "${@:-help}"
