@@ -27,10 +27,10 @@ WORKDIR /code/vueapp
 ENV WEBPACK_DIST=../backend/app/static/app/webpack-dist
 
 #todo make this use run instead, so this can be done by run
-#FROM jsbase as jsprod
-#ENV WEBPACK_DIST ./webpack-dist
-#COPY vueapp/ ./
-#RUN npm install && ./node_modules/.bin/vue-cli-service build
+FROM jsbase as jsprod
+ENV WEBPACK_DIST ./webpack-dist
+COPY vueapp/ ./
+RUN npm install && ./node_modules/.bin/vue-cli-service build
 
 FROM base as prod
 COPY backend/requirements.txt requirements.txt
@@ -38,7 +38,7 @@ RUN pip3 install -r requirements.txt && \
     pip3 install gunicorn==20.1.0
 # This assumes vue build is run and populated with webpack-dist
 COPY backend/ ./
-#COPY --from=jsprod webpack-dist app/static/app/webpack-dist
+COPY --from=jsprod webpack-dist app/static/app/webpack-dist
 # This is to allow manage.py commands
 ENV POSTGRES_DB=fake POSTGRES_USER=fake POSTGRES_PASSWORD=fake POSTGRES_HOST=fake
 RUN python3 manage.py collectstatic --noinput
