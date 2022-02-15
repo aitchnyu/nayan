@@ -16,7 +16,7 @@ class CivicPoint(models.Model):
     # slug = models.TextField(db_index=True, unique=True)
     point = models.PointField()
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         return self.name
 
     @classmethod
@@ -32,7 +32,7 @@ class CivicArea(models.Model):
     slug = models.TextField(db_index=True, unique=True)
     area = models.MultiPolygonField(srid=4326)
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         return self.name
 
 
@@ -50,7 +50,7 @@ class Tag(models.Model):
     name = models.TextField()
     slug = models.TextField()
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         return f"{self.id} {self.name}"
 
     # todo use tags in future
@@ -97,7 +97,7 @@ class Issue(models.Model):
     tag_slugs = ArrayField(models.CharField(max_length=30), db_index=True, default=list)
     tags = models.ManyToManyField(Tag)
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         return self.title
 
     @classmethod
@@ -113,4 +113,3 @@ class Issue(models.Model):
         )
         new_issue.tags.add(*tags)
         return new_issue
-

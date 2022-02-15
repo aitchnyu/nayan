@@ -11,5 +11,13 @@ module.exports = {
     // todo in future, if we need to test js files too
     // 'src/**/*.{js,vue}',
     // '!src/main.js', // No need to cover bootstrap file
-  ]
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100
+    }
+  }
 }

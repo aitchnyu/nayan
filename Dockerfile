@@ -10,9 +10,12 @@ RUN apt-get update && \
     apt-get install -y binutils libproj-dev gdal-bin
 
 FROM base as dev
+RUN pip install playwright && \
+    playwright install && \
+    playwright install-deps
 EXPOSE 8000
 
-FROM ubuntu:18.04 as jsbase
+FROM ubuntu:20.04 as jsbase
 RUN apt-get update && \
     apt-get install -y curl && \
     curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
@@ -23,7 +26,7 @@ RUN mkdir /code
 WORKDIR /code/vueapp
 ENV WEBPACK_DIST=../backend/app/static/app/webpack-dist
 
-#todo make this use run instead
+#todo make this use run instead, so this can be done by run
 FROM jsbase as jsprod
 ENV WEBPACK_DIST ./webpack-dist
 COPY vueapp/ ./
@@ -33,6 +36,7 @@ FROM base as prod
 COPY backend/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt && \
     pip3 install gunicorn==20.1.0
+# This assumes vue build is run and populated with webpack-dist
 COPY backend/ ./
 COPY --from=jsprod webpack-dist app/static/app/webpack-dist
 # This is to allow manage.py commands

@@ -10,8 +10,6 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
-  selenium:
-    image: selenium/standalone-firefox:88.0
   webdev:
     build:
       context: .
@@ -28,7 +26,6 @@ services:
       - "8000:8000"
     depends_on:
       - db
-      - selenium
   jsdev:
     build:
       context: .

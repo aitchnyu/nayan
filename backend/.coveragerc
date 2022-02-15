@@ -1,0 +1,14 @@
+[run]
+omit =
+    *test_playwright.py
+    *manage.py
+    *migrations/
+
+[report]
+omit =
+    *test_playwright.py
+    *manage.py
+    *migrations/
+
+fail_under = 100
+show_missing = True

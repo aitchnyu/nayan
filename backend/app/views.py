@@ -171,6 +171,6 @@ class CreateIssue(View):
                 location=geos.Point(
                     form.cleaned_data["longitude"], form.cleaned_data["latitude"]
                 ),
-                tags=[]
+                tags=[],
             )
         return redirect(reverse("view_issue", args=(issue.id,)), permanent=True)

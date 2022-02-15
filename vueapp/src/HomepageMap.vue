@@ -23,7 +23,7 @@
           :lat-lng="userLocationMarker"
         >
           <l-tooltip :options="{permanent: true, interactive: true}">
-            <a :href="`/issues/${userLocationMarker.lat}/${userLocationMarker.lng}/1000`">Issues at your location</a>
+            <a class="issues-at-geolocation" :href="`/issues/${userLocationMarker.lat}/${userLocationMarker.lng}/1000`">Issues at your location</a>
           </l-tooltip>
         </l-marker>
         <l-marker
@@ -31,7 +31,7 @@
           :lat-lng="secondCenter"
         >
           <l-tooltip :options="{permanent: true, interactive: true}">
-            <a :href="`/issues/${secondCenter.lat}/${secondCenter.lng}/1000`">Issues here</a>
+            <a class="issues-at-map-center" :href="`/issues/${secondCenter.lat}/${secondCenter.lng}/1000`">Issues here</a>
           </l-tooltip>
         </l-marker>
         <l-marker
@@ -40,7 +40,7 @@
           :lat-lng="selected.point"
         >
           <l-tooltip :options="{permanent: true, interactive: true}">
-            <a :href="`/issues/${selected.point.lat}/${selected.point.lng}/1000`">Issues around {{ selected.name }}</a>
+            <a class="issues-at-named-location" :href="`/issues/${selected.point.lat}/${selected.point.lng}/1000`">Issues around {{ selected.name }}</a>
           </l-tooltip>
         </l-marker>
       </l-map>
@@ -117,7 +117,7 @@ export default {
     }
   },
   methods: {
-    // This is mocked
+    // This is tested in live server
     // istanbul ignore next
     getPosition (options) {
       return new Promise(function (resolve, reject) {

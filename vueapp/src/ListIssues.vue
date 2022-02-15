@@ -1,10 +1,5 @@
 <template>
   <div>
-    <div
-      v-if="finishedLoading"
-      id="finished-loading-indicator"
-      style="display: none"
-    />
     <l-map
       ref="map"
       :zoom.sync="zoom"
@@ -39,10 +34,10 @@
     </l-map>
     <portal selector="#sidebar-stuff">
       <div class="buttons">
-        <a class="button is-info" :href="`/issues/${centerMirror.lat}/${centerMirror.lng}/create`">
+        <a class="button is-info create-issue-url" :href="`/issues/${centerMirror.lat}/${centerMirror.lng}/create`">
           Report Issue
         </a>
-        <a class="button is-info" :href="recenterUrl">
+        <a class="button is-info recenter-map-url" :href="recenterUrl">
           Recenter Map
         </a>
       </div>
@@ -71,7 +66,6 @@ const crosshairIcon = L.icon({
   iconAnchor: [10, 10] // point of the icon which will correspond to marker's location
 })
 
-
 export default {
   name: 'ListIssues',
   components: {
@@ -88,7 +82,6 @@ export default {
     return {
       circleIcon: icon,
       crosshairIcon: crosshairIcon,
-      finishedLoading: false,
       // Center will not sync hence centerMirror is used to sync
       center: indiaCenter,
       centerMirror: indiaCenter,
@@ -107,11 +100,12 @@ export default {
     window.listIssues = this
     const map = this.getLeaflet()
     const that = this
-    map.on('moveend zoomend', (e) => {
+    map.on('move zoom', (e) => {
       that.centerMirror = map.getCenter()
+    })
+    map.on('moveend zoomend', (e) => {
       that.updateRecenterUrl()
     })
-    map.once('moveend zoomend', () => { this.finishedLoading = true })
     map.fitBounds(L.polyline(this.bounds).getBounds())
   },
   methods: {
