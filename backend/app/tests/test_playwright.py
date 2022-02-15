@@ -134,7 +134,7 @@ class ListIssuesLiveServerTestCase(StaticLiveServerTestCase):
         self.assertAlmostEqual(match.args["distance"], 1000, delta=10)
 
         page.locator(".leaflet-control-zoom-out").click()
-        time.sleep(0.2)
+        time.sleep(0.5)
         match = PathMatch(page.eval_on_selector(".recenter-map-url", "el => el.href"))
         self.assertAlmostEqual(match.args["latitude"], 60.6, delta=0.01)
         self.assertAlmostEqual(match.args["longitude"], 60.6, delta=0.01)

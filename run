@@ -6,6 +6,16 @@ then
   exit 1
 fi
 
+if [[ "${CI}" == "true" ]]; then
+    function dce() {
+        docker-compose exec -T "$@"
+    }
+else
+    function dce() {
+        docker-compose exec "$@"
+    }
+fi
+
 docker-compose up -d
 
 # Functions format is from https://github.com/adriancooney/Taskfile
@@ -13,27 +23,27 @@ docker-compose up -d
 function init() {
   echo "Running idempotent init script"
   # Since we don't have "if not exists" we just attempt it.
-  docker-compose exec db psql -U postgres -c "create database db;"
-  docker-compose exec webdev python3 -m venv /code/venv
-  docker-compose exec webdev /code/venv/bin/python3 -m pip install -r /code/backend/requirements.txt
-  docker-compose exec webdev /code/venv/bin/python3 /code/backend/manage.py migrate
-  docker-compose exec jsdev npm install
+  dce db psql -U postgres -c "create database db;"
+  dce webdev python3 -m venv /code/venv
+  dce webdev /code/venv/bin/python3 -m pip install -r /code/backend/requirements.txt
+  dce webdev /code/venv/bin/python3 /code/backend/manage.py migrate
+  dce jsdev npm install
 }
 
 function clean() {
   # Since docker is run as root, its generated files are root owned
-  docker-compose exec webdev rm -rf /code/venv
-  docker-compose exec webdev rm -rf /code/pgdata
-  docker-compose exec webdev rm -rf /code/vueapp/node_modules
-  docker-compose exec webdev rm -rf /code/backend/static
-  docker-compose exec webdev rm -rf /code/htmlcov
-  docker-compose exec webdev rm -f /code/.coverage
-  docker-compose exec webdev rm -rf /code/vueapp/coverage
-  docker-compose exec webdev rm -rf /code/backend/app/static/app/webpack-dist
+  dce webdev rm -rf /code/venv
+  dce webdev rm -rf /code/pgdata
+  dce webdev rm -rf /code/vueapp/node_modules
+  dce webdev rm -rf /code/backend/static
+  dce webdev rm -rf /code/htmlcov
+  dce webdev rm -f /code/.coverage
+  dce webdev rm -rf /code/vueapp/coverage
+  dce webdev rm -rf /code/backend/app/static/app/webpack-dist
 }
 
 function django-manage() {
-  docker-compose exec webdev /code/venv/bin/python3 /code/backend/manage.py "$@"
+  dce webdev /code/venv/bin/python3 /code/backend/manage.py "$@"
 }
 
 function django-manage-runserver() {
@@ -46,27 +56,27 @@ function django-test() {
 
 function django-test-coverage() {
   set -eu
-  docker-compose exec webdev /code/venv/bin/coverage run --rcfile=/code/backend/.coveragerc /code/backend/manage.py test app
-  docker-compose exec webdev /code/venv/bin/coverage report --rcfile=/code/backend/.coveragerc
-  docker-compose exec webdev /code/venv/bin/coverage html --rcfile=/code/backend/.coveragerc
+  dce webdev /code/venv/bin/coverage run --rcfile=/code/backend/.coveragerc /code/backend/manage.py test app
+  dce webdev /code/venv/bin/coverage report --rcfile=/code/backend/.coveragerc
+  dce webdev /code/venv/bin/coverage html --rcfile=/code/backend/.coveragerc
   read -e -p "Open coverage report in browser? [Y/n] " YN
   [[ $YN == "y" || $YN == "Y" || $YN == "" ]] && open htmlcov/index.html
 }
 
 function pip() {
- docker-compose exec webdev /code/venv/bin/pip3 "$@"
+ dce webdev /code/venv/bin/pip3 "$@"
 }
 
 function black() {
- docker-compose exec webdev /code/venv/bin/black backend "$@"
+ dce webdev /code/venv/bin/black backend "$@"
 }
 
 function npm() {
- docker-compose exec jsdev npm "$@"
+ dce jsdev npm "$@"
 }
 
 function vue-cli() {
-  docker-compose exec jsdev ./node_modules/.bin/vue-cli-service "$@"
+  dce jsdev ./node_modules/.bin/vue-cli-service "$@"
 }
 
 function vue-watch() {
@@ -108,9 +118,9 @@ function checkall() {
   # fails if Python linting standard not met
   black --check
   # fails if tests fail
-  docker-compose exec webdev /code/venv/bin/coverage run --rcfile=/code/backend/.coveragerc /code/backend/manage.py test app
+  dce webdev /code/venv/bin/coverage run --rcfile=/code/backend/.coveragerc /code/backend/manage.py test app
   # fails if coverage is not met
-  docker-compose exec webdev /code/venv/bin/coverage report --rcfile=/code/backend/.coveragerc
+  dce webdev /code/venv/bin/coverage report --rcfile=/code/backend/.coveragerc
   echo All steps in check-all were successful
 }
 
