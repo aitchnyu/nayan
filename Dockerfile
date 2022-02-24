@@ -12,9 +12,9 @@ RUN apt-get update && \
     apt-get install -y binutils libproj-dev gdal-bin
 
 FROM base as dev
-RUN pip install playwright && \
-    playwright install && \
-    playwright install-deps
+RUN pip install playwright==1.18.2 && \
+  playwright install && \
+  playwright install-deps
 EXPOSE 8000
 
 FROM ubuntu:20.04 as jsbase
