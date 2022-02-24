@@ -1,6 +1,6 @@
 // import jest from 'jest'
 import { mount } from '@vue/test-utils'
-import HomepageMap from '@/HomepageMap.vue'
+import HomepageMap from '../../src/HomepageMap'
 
 jest.mock('axios', () => ({
   get: Promise.resolve('value')

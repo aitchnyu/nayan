@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import ViewIssue from '@/ViewIssue.vue'
+import ViewIssue from '../../src/ViewIssue'
 
 describe('ViewIssue.vue', () => {
   it('renders Leaflet map centered at 60, 60', () => {

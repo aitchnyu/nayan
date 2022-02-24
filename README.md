@@ -44,40 +44,38 @@ In a cloud shell, clone the repo to nayan directory.
 
 Then `cd nayan` to enter the directory
 
-Create a postgres DB.
+Export these:
 
-`./create_gc_infra db <instance name> <region> <root password>`
-
-`./deploygc build`
-
-`./deploygc manage migrate`
-
-todo move this down
-
-`./deploygc manage creategeo`
-
-
-```
-export SITE=[site name]
+```shell
+$ export SITE=[site name]
 # Infra details
-export PROJECT_ID=[project id generated]
-export REGION=[region, asia-south1 for Mumbai]
-export SERVICE_NAME=markerae
+$ export PROJECT_ID=[project id generated]
+$ export REGION=[region, asia-south1 for Mumbai]
+$ export SERVICE_NAME=markerae
 # Resources
-export POSTGRES_DB=[db name]
-export POSTGRES_USER=postgres
-export  POSTGRES_PASSWORD=[password]
-export  POSTGRES_INSTANCE=[instance name]
+$ export POSTGRES_DB=[db name]
+$ export POSTGRES_USER=postgres
+$ export  POSTGRES_PASSWORD=[password]
+$ export  POSTGRES_INSTANCE=[instance name]
 ```
 
-```
-cd nayan
-./create_gc_infra.sh db [instance name] [region] [root password]
-./deploy_on_gc.sh manage build
-./deploy_on_gc.sh manage showmigrations
-./deploy_on_gc.sh manage migrate
-./deploy_on_gc.sh manage createsuperuser
-./deploy_on_gc.sh deploy
+
+```shell
+# Create a postgres DB.
+
+$ ./create_gc_infra db <instance name> <region> <root password>
+
+$ ./deploygc build
+
+$ ./deploygc manage migrate
+
+# Create post offices 
+$ ./deploygc manage creategeo
+# Create tags
+$ ./deploygc manage createtags
+
+# Deploy to Cloud Run
+$ ./deploygc deploy
 ```
 
 ## Technologies used

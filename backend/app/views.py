@@ -89,12 +89,24 @@ class Box:
 
 class ListIssues(View):
     def get(self, request, latitude: float, longitude: float, distance: int):
-        if distance > 100000:
-            return HttpResponse("Only upto 100 km", status=400)
-        bounds = Box(distance, latitude, longitude)
-        issues = models.Issue.objects.filter(location__contained=bounds.box).order_by(
-            "-id"
+        form = forms.ListIssuesParamsForm(
+            {**request.GET.dict(), "distance": distance}
+        )  # .dict() is used since request.GET is a multidict that has lists for values
+        if not form.is_valid():
+            return HttpResponse(
+                str(form.errors), status=400
+            )  # todo make this better page with back option
+        form_data = form.cleaned_data
+        bounds = Box(form_data["distance"], latitude, longitude)
+        issues = (
+            models.Issue.objects.filter(location__contained=bounds.box)
+            .order_by("-id")
+            .filter_all_tags(form_data["all_tags"])
+            .filter_any_tags(form_data["any_tags"])
+            .exclude_tags(form_data["none_tags"])
+            .prefetch_related("tags")
         )
+        all_tags = [tag.as_response() for tag in models.Tag.objects.order_by("name")]
         return TemplateResponse(
             request,
             "app/list_issues.html",
@@ -109,10 +121,17 @@ class ListIssues(View):
                                 "lat": issue.location.y,
                                 "lng": issue.location.x,
                             },
+                            "tags": [tag.as_response() for tag in issue.tags.all()],
                         }
                         for issue in issues
                     ],
                     "bounds": bounds.response,
+                    "filters": {
+                        "all": [tag.as_response() for tag in form_data["all_tags"]],
+                        "any": [tag.as_response() for tag in form_data["any_tags"]],
+                        "none": [tag.as_response() for tag in form_data["none_tags"]],
+                    },
+                    "allTags": all_tags,
                 },
             },
         )
@@ -126,6 +145,7 @@ class ViewIssue(View):
             "app/view_issue.html",
             {
                 "issue": issue,
+                "tags": issue.tags.all(),
                 "page_title": issue.title,
                 "raw_data": {
                     "title": issue.title,
@@ -139,21 +159,26 @@ class ViewIssue(View):
 class CreateIssue(View):
     def get(self, request: Request, latitude: float, longitude: float):
         form = forms.CreateIssueForm(
-            initial={"latitude": latitude, "longitude": longitude}
+            initial={"latitude": latitude, "longitude": longitude, "tags": []}
         )
-        # tags = [tag.as_response() for tag in Tag.objects.order_by('name')]
+        all_tags = [tag.as_response() for tag in models.Tag.objects.order_by("name")]
         return TemplateResponse(
             request,
             "app/create_issue.html",
             {
                 "form": form,
                 "page_title": "Report Issue",
-                "raw_data": {"lat": latitude, "lng": longitude},
+                "raw_data": {
+                    "center": {"lat": latitude, "lng": longitude},
+                    "allTags": all_tags,
+                    "selectedTags": [],
+                },
             },
         )
 
     def post(self, request: Request, latitude: float, longitude: float):
         form = forms.CreateIssueForm(request.POST)
+        all_tags = [tag.as_response() for tag in models.Tag.objects.order_by("name")]
         if not form.is_valid():
             return TemplateResponse(
                 request,
@@ -161,7 +186,17 @@ class CreateIssue(View):
                 {
                     "form": form,
                     "page_title": "Report Issue",
-                    "raw_data": {"latitude": latitude, "longitude": longitude},
+                    "raw_data": {
+                        "center": {
+                            "lat": form.cleaned_data["latitude"],
+                            "lng": form.cleaned_data["longitude"],
+                        },
+                        "allTags": all_tags,
+                        "selectedTags": [
+                            tag.as_response()
+                            for tag in form.cleaned_data.get("tags", [])
+                        ],
+                    },
                 },
                 status=400,
             )
@@ -171,6 +206,6 @@ class CreateIssue(View):
                 location=geos.Point(
                     form.cleaned_data["longitude"], form.cleaned_data["latitude"]
                 ),
-                tags=[],
+                tags=form.cleaned_data["tags"],
             )
         return redirect(reverse("view_issue", args=(issue.id,)), permanent=True)

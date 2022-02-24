@@ -9,8 +9,8 @@ const pages = {
     entry: './src/listIssues.js',
     template: 'public/index.html'
   },
-  selectpoint: {
-    entry: './src/selectPoint.js',
+  createissue: {
+    entry: './src/createIssue.js',
     template: 'public/index.html'
   },
   viewissue: {

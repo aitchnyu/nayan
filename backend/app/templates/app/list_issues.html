@@ -17,6 +17,9 @@
         overflow-y: scroll
       }
     }
+    .show-only-one:nth-child(2) {
+        display: none;
+    }
   </style>
   <section class="columns">
     <div class="column px-0 pb-0 mb-0 columns-height">
@@ -31,12 +34,22 @@
           You can click issues on the map or the list.
           You may report an issue too.
       </div>
-      <div id="sidebar-stuff"></div>
+      <div id="sidebar-stuff">
+        <!-- This prevents too much layout shift. A div with .show-only-one will be prepended to this, and this will be hidden -->
+        <div style="height: 250px;" id="hide-this" class="show-only-one"></div>
+      </div>
       {% for issue in raw_data.issues %}
         <div class="pb-1">
           <a href="{% url 'view_issue' issue.id %}?slug={{ issue.title | slugify }}">
             {{ issue.title }}
           </a>
+          <span class="tags" style="display: inline">
+            {% for tag in issue.tags %}
+              <span class="tag is-light">
+                {{ tag.name }}
+              </span>
+            {% endfor %}
+          </span>
         </div>
       {% endfor %}
     </div>

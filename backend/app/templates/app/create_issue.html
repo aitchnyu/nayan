@@ -5,7 +5,11 @@
   <h2 class="title">Report Issue</h2>
   <form method="post">
     <div>
-        <div id="select-point"></div>
+        <div id="select-point">
+          <!-- This prevents too much layout shift -->
+          <div style="height: 75vh; width: 100%; background-color: #e6e5e0">
+          </div>
+        </div>
     </div>
     <div id="portal-target"></div>
     {% for error in form.location.errors %}
@@ -14,11 +18,23 @@
       </p>
     {% endfor %}
     {% include 'app/text_input.html' with field=form.title autofocus=True only %}
+    <div class="field">
+      <label class="label">Tags</label>
+      <div id="select-tags">
+        <!-- fake input to prevent layout shift -->
+        <input type="text" class="input" disabled>
+      </div>
+      {% for error in form.tags.errors %}
+        <p class="help is-danger">
+          {{ error }}
+        </p>
+      {% endfor %}
+    </div>
     {% csrf_token %}
     <button type="submit" class="button is-info">Report Issue</button>
   </form>
 {% endblock %}
 {% block extrascripts %}
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-selectpoint.js' %}"></script>
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/selectpoint.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-createissue.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/webpack-dist/js/createissue.js' %}"></script>
 {% endblock %}

@@ -50,15 +50,12 @@ export default {
     LMap, LTileLayer, LMarker
   },
   props: {
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true }
+    center: { type: Object, required: true }
   },
   data: function () {
-    const center = { lat: this.lat, lng: this.lng }
     return {
       icon: crosshairIcon,
-      center: center,
-      secondCenter: center,
+      secondCenter: this.center,
       zoom: 17
     }
   },

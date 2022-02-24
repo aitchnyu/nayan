@@ -60,11 +60,22 @@ class IssueTestCase(MyTestCase):
 
 class CreateIssueTestCase(MyTestCase):
     def test_form(self):
-        form = forms.CreateIssueForm({"title": "foo", "latitude": 60, "longitude": 60})
+        tag_1 = models.Tag.create("Tag 1")
+        form = forms.CreateIssueForm(
+            {"title": "foo", "latitude": 60, "longitude": 60, "tags": "tag-1"}
+        )
         self.assertTrue(form.is_valid())
-        form = forms.CreateIssueForm({"title": "foo", "latitude": 600, "longitude": 60})
+        form = forms.CreateIssueForm(
+            {"title": "foo", "latitude": 60, "longitude": 60, "tags": "tag-fake"}
+        )
+        self.assertEquals(list(form.errors.keys()), ["tags"])
+        form = forms.CreateIssueForm(
+            {"title": "foo", "latitude": 600, "longitude": 60, "tags": "tag-1"}
+        )
         self.assertEquals(list(form.errors.keys()), ["latitude"])
-        form = forms.CreateIssueForm({"title": "foo", "latitude": 60, "longitude": 600})
+        form = forms.CreateIssueForm(
+            {"title": "foo", "latitude": 60, "longitude": 600, "tags": "tag-1"}
+        )
         self.assertEquals(list(form.errors.keys()), ["longitude"])
 
     def test_raw_data_contains_latitude_and_longitude(self):
@@ -74,15 +85,22 @@ class CreateIssueTestCase(MyTestCase):
         self.assertContains(response, '"lng": 60')
 
     def test_creating_issue_works(self):
-        response = self.client.post(reverse("create_issue", args=(60, 60)), {})
+        tag_1 = models.Tag.create("Tag 1")
+        tag_2 = models.Tag.create("Tag 2")
+        response = self.client.post(
+            reverse("create_issue", args=(60, 60)), {"latitude": 0, "longitude": 0}
+        )
         self.assertEquals(response.status_code, 400)
         self.assertFalse(response.context_data["form"].is_valid())
         response = self.client.post(
             reverse("create_issue", args=(60, 60)),
-            {"title": "foo", "latitude": 60, "longitude": 60},
+            {"title": "foo", "latitude": 60, "longitude": 60, "tags": "tag-1,tag-2"},
         )
+        # self.assertEquals(response.status_code, 301)
         issue = models.Issue.objects.get()
         self.assertEquals(issue.title, "foo")
+        self.assertEquals(list(issue.tags.all()), [tag_1, tag_2])
+        self.assertEquals(list(issue.tag_slugs), ["tag-1", "tag-2"])
         self.assertEquals(issue.location.tuple, geos.Point(60, 60).tuple)
         self.assertRedirects(
             response, reverse("view_issue", args=(issue.id,)), status_code=301
@@ -96,4 +114,40 @@ class ListIsuesTestCase(MyTestCase):
         response = self.client.get(reverse("list_issues", args=(60, 60, 200000)))
         self.assertEquals(response.status_code, 400)
 
-    # todo is bounds checking working?
+    # todo checking if issues are within bounds
+
+    def test_tag_filters(self):
+        tag_1 = models.Tag.create("Foo 1")
+        tag_2 = models.Tag.create("Foo 2")
+        tag_3 = models.Tag.create("Foo 3")
+        tag_4 = models.Tag.create("Foo 4")
+        issue_1 = models.Issue.create(
+            title="Issue 1", location=geos.Point(60, 60), tags=[tag_1, tag_2]
+        )
+        issue_2 = models.Issue.create(
+            title="Issue 2", location=geos.Point(60, 60), tags=[tag_1]
+        )
+        issue_3 = models.Issue.create(
+            title="Issue 3", location=geos.Point(60, 60), tags=[tag_3]
+        )
+
+        def issue_ids_in_context(response):
+            return [
+                issue["id"] for issue in response.context_data["raw_data"]["issues"]
+            ]
+
+        response = self.client.get(
+            reverse("list_issues", args=(60, 60, 100000)),
+            {"all_tags": f"{tag_1.slug},{tag_2.slug}"},
+        )
+        self.assertEquals(issue_ids_in_context(response), [issue_1.id])
+        response = self.client.get(
+            reverse("list_issues", args=(60, 60, 100000)),
+            {"any_tags": f"{tag_1.slug},{tag_2.slug}"},
+        )
+        self.assertEquals(issue_ids_in_context(response), [issue_2.id, issue_1.id])
+        response = self.client.get(
+            reverse("list_issues", args=(60, 60, 100000)),
+            {"none_tags": f"{tag_1.slug},{tag_2.slug}"},
+        )
+        self.assertEquals(issue_ids_in_context(response), [issue_3.id])

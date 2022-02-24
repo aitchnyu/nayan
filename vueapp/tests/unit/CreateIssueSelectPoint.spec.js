@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils'
-import SelectPoint from '@/SelectPoint.vue'
+import CreateIssueSelectPoint from '../../src/CreateIssueSelectPoint'
 
-describe('SelectPoint.vue', () => {
+describe('CreateIssueSelectPoint.vue', () => {
   it('renders Leaflet map centered at 60, 60', async () => {
-    const wrapper = mount(SelectPoint, {
-      propsData: { lat: 60, lng: 60 }
+    const wrapper = mount(CreateIssueSelectPoint, {
+      propsData: { center: { lat: 60, lng: 60 } }
     })
     expect(wrapper.vm.getLeafletCenter()).toEqual({ lat: 60, lng: 60 })
     expect(wrapper.find('input[name=latitude]').element.value).toEqual('60')

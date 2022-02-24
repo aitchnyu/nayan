@@ -1,6 +1,8 @@
 FROM ubuntu:20.04 as base
-# CMD fails on prod target for some strange Cloud Run behavior on 20.04 https://stackoverflow.com/questions/61989516/running-gcloud-run-deploy-from-inside-cloud-build-results-in-error
+# Prevents Python from buffering stdout and stderr
 ENV PYTHONUNBUFFERED 1
+# Prevents Python from writing pyc files to disc
+ENV PYTHONDONTWRITEBYTECODE 1
 RUN mkdir /code
 WORKDIR /code
 # This was asking dialog for tzdata
@@ -26,7 +28,6 @@ RUN mkdir /code
 WORKDIR /code/vueapp
 ENV WEBPACK_DIST=../backend/app/static/app/webpack-dist
 
-#todo make this use run instead, so this can be done by run
 FROM jsbase as jsprod
 ENV WEBPACK_DIST ./webpack-dist
 COPY vueapp/ ./
@@ -36,7 +37,6 @@ FROM base as prod
 COPY backend/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt && \
     pip3 install gunicorn==20.1.0
-# This assumes vue build is run and populated with webpack-dist
 COPY backend/ ./
 COPY --from=jsprod webpack-dist app/static/app/webpack-dist
 # This is to allow manage.py commands

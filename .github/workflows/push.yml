@@ -16,5 +16,3 @@ jobs:
         run: ./run init
       - name: Run all checks
         run: ./run checkall
-#      - name: Run Integration tests in Django
-#        run: docker-compose exec -T webdev /code/venv/bin/python3 /code/backend/manage.py test app --keepdb

@@ -53,31 +53,39 @@ class Tag(models.Model):
     def __str__(self):  # pragma: no cover
         return f"{self.id} {self.name}"
 
-    # todo use tags in future
-    # def as_response(self) -> dict:
-    #     return {"slug": self.slug, "name": self.name}
+    @classmethod
+    def create(cls, name) -> "Tag":
+        return cls.objects.create(name=name, slug=slugify(name))
+
+    def as_response(self) -> dict:
+        return {"slug": self.slug, "name": self.name}
 
 
-# todo no user, state, district etc
 class IssueQuerySet(models.QuerySet):
-    pass
-    # todo use them later
-    # def filter_tags(
-    #     self,
-    #     *,
-    #     all_tags: typing.List[Tag],
-    #     any_tags: typing.List[Tag],
-    #     none_tags: typing.List[Tag],
-    # ) -> typing.Union[models.QuerySet, typing.List["Issue"]]:
-    #     query = self
-    #     if all_tags:
-    #         query = query.filter(tag_slugs__contains=[i.slug for i in all_tags])
-    #     if any_tags:
-    #         query = query.filter(tag_slugs__overlap=[i.slug for i in any_tags])
-    #     if none_tags:
-    #         query = query.exclude(tag_slugs__overlap=[i.slug for i in none_tags])
-    #     return query
-    #
+    def filter_all_tags(
+        self, tags: typing.List[Tag]
+    ) -> typing.Union[models.QuerySet, typing.List["Issue"]]:
+        if tags:
+            return self.filter(tag_slugs__contains=[i.slug for i in tags])
+        else:
+            return self
+
+    def filter_any_tags(
+        self, tags: typing.List[Tag]
+    ) -> typing.Union[models.QuerySet, typing.List["Issue"]]:
+        if tags:
+            return self.filter(tag_slugs__overlap=[i.slug for i in tags])
+        else:
+            return self
+
+    def exclude_tags(
+        self, tags: typing.List[Tag]
+    ) -> typing.Union[models.QuerySet, typing.List["Issue"]]:
+        if tags:
+            return self.exclude(tag_slugs__overlap=[i.slug for i in tags])
+        else:
+            return self
+
     # def tag_counts(self) -> typing.Sequence[dict]:
     #     return (
     #         Tag.objects.filter(issue__id__in=self)

@@ -7,6 +7,13 @@
     <div style="height: 75vh; width: 100%; background-color: #e6e5e0">
     </div>
   </div>
+  <div class="tags">
+    {% for tag in issue.tags.all %}
+      <span class="tag is-light is-medium">
+        {{ tag.name }}
+      </span>
+    {% endfor %}
+  </div>
   <a href="{%  url "list_issues" issue.location.y issue.location.x 1000 %}">Issues at this area</a>
 {% endblock %}
 {% block extrascripts %}

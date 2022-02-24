@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { mount } from '@vue/test-utils'
-import SelectPlace from '@/SelectPlace.vue'
+import SelectPlace from '../../src/SelectPlace'
 
 jest.mock('axios')
 

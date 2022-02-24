@@ -2,13 +2,13 @@
 omit =
     *test_playwright.py
     *manage.py
-    *migrations/
+    *migrations/*
 
 [report]
 omit =
     *test_playwright.py
     *manage.py
-    *migrations/
+    *migrations/*
 
 fail_under = 100
 show_missing = True

@@ -32,13 +32,36 @@
         color="#bbb"
       />
     </l-map>
-    <portal selector="#sidebar-stuff">
-      <div class="buttons">
+    <portal selector="#sidebar-stuff" :prepend="true">
+      <div class="show-only-one">
+        <div class="buttons">
         <a class="button is-info create-issue-url" :href="`/issues/${centerMirror.lat}/${centerMirror.lng}/create`">
           Report Issue
         </a>
         <a class="button is-info recenter-map-url" :href="recenterUrl">
           Recenter Map
+        </a>
+      </div>
+      <div class="field">
+        <label class="label">All of these tags</label>
+        <select-issue-tags :on-select="tags => updateTagFilters('all', tags)"
+                           :tags="tagFilters.all"
+                           :all-tags="allTags"/>
+      </div>
+      <div class="field">
+        <label class="label">Any of these tags</label>
+        <select-issue-tags :on-select="tags => updateTagFilters('any', tags)"
+                           :tags="tagFilters.any"
+                           :all-tags="allTags"/>
+      </div>
+      <div class="field">
+        <label class="label">None of these tags</label>
+        <select-issue-tags :on-select="tags => updateTagFilters('none', tags)"
+                           :tags="tagFilters.none"
+                           :all-tags="allTags"/>
+      </div>
+      <a class="button is-info create-issue-url" v-if="urlForUpdatedTagFilters" :href="urlForUpdatedTagFilters">
+          Update Filters
         </a>
       </div>
     </portal>
@@ -51,6 +74,7 @@ import kebabCase from 'lodash/kebabCase'
 import { Portal } from '@linusborg/vue-simple-portal'
 import { LMap, LTileLayer, LMarker, LPopup, LPolygon } from 'vue2-leaflet'
 
+import SelectIssueTags from './SelectIssueTags'
 import CircleIcon from '@/assets/circle.png'
 import PlusIcon from '@/assets/plus.png'
 
@@ -66,14 +90,39 @@ const crosshairIcon = L.icon({
   iconAnchor: [10, 10] // point of the icon which will correspond to marker's location
 })
 
+function replaceUrlParams (params) {
+  const url = new URL(window.location)
+  const searchParams = new URLSearchParams(url.search)
+  const merged = { ...Object.fromEntries(searchParams.entries()), page: null, ...params }
+  const out = {}
+  for (const [key, value] of Object.entries(merged)) {
+    if (value !== null) {
+      out[key] = value
+    }
+  }
+  return out
+}
+
+// Copy pasted from somewhere
+// istanbul ignore next
+function redirectPath (path = null, search = null) {
+  const url = new URL(window.location)
+  const finalPath = path === null ? url.pathname : path
+  const finalSearch = search === null
+    ? url.search : '?' + new URLSearchParams(replaceUrlParams(search)).toString()
+  return finalPath + finalSearch
+}
+
 export default {
   name: 'ListIssues',
   components: {
-    LMap, LTileLayer, LMarker, LPolygon, LPopup, Portal
+    LMap, LTileLayer, LMarker, LPolygon, LPopup, Portal, SelectIssueTags
   },
   props: {
+    allTags: { type: Array, required: true },
     rawIssues: { type: Array, required: true },
-    rawBounds: { type: Array, required: true }
+    rawBounds: { type: Array, required: true },
+    rawFilters: { type: Object, required: true }
   },
   data: function () {
     // eslint-disable-next-line no-undef
@@ -88,6 +137,8 @@ export default {
       zoom: 17,
       bounds: this.rawBounds,
       issues: this.rawIssues.map(i => ({ ...i, slug: kebabCase(i.title) })),
+      tagFilters: this.rawFilters,
+      urlForUpdatedTagFilters: null,
 
       width: mapDimensions.width,
       height: mapDimensions.height,
@@ -118,6 +169,37 @@ export default {
       this.width = shit.width
       this.height = shit.height
     },
+    updateTagFilters (field, tags) {
+      function removeDuplicateTags (inputTags, checkTags) {
+        const checkTagSlugs = checkTags.map(tag => tag.slug)
+        return inputTags.filter(tag => checkTagSlugs.indexOf(tag.slug) === -1)
+      }
+      function joinTagSlugs (tagArray) {
+        return tagArray.length ? tagArray.map(tag => tag.slug).join(',') : null
+      }
+      // There is no else block
+      // istanbul ignore else
+      if (field === 'all') {
+        this.tagFilters.all = tags
+        this.tagFilters.any = removeDuplicateTags(this.tagFilters.any, tags)
+        this.tagFilters.none = removeDuplicateTags(this.tagFilters.none, tags)
+      } else if (field === 'any') {
+        this.tagFilters.any = tags
+        this.tagFilters.all = removeDuplicateTags(this.tagFilters.all, tags)
+        this.tagFilters.none = removeDuplicateTags(this.tagFilters.none, tags)
+      } else if (field === 'none') {
+        this.tagFilters.none = tags
+        this.tagFilters.all = removeDuplicateTags(this.tagFilters.all, tags)
+        this.tagFilters.any = removeDuplicateTags(this.tagFilters.any, tags)
+      }
+      this.urlForUpdatedTagFilters = redirectPath(
+        null,
+        {
+          all_tags: joinTagSlugs(this.tagFilters.all),
+          any_tags: joinTagSlugs(this.tagFilters.any),
+          none_tags: joinTagSlugs(this.tagFilters.none)
+        })
+    },
     updateRecenterUrl () {
       const map = this.getLeaflet()
       const mapCenter = map.getCenter()
@@ -129,7 +211,7 @@ export default {
       if (distance > 100000) {
         distance = 100000
       }
-      this.recenterUrl = `/issues/${mapCenter.lat}/${mapCenter.lng}/${distance}`
+      this.recenterUrl = redirectPath(`/issues/${mapCenter.lat}/${mapCenter.lng}/${distance}`, null)
     }
   }
 }

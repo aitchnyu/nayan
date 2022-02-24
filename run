@@ -55,7 +55,6 @@ function django-test() {
 }
 
 function django-test-coverage() {
-  set -eu
   dce webdev /code/venv/bin/coverage run --rcfile=/code/backend/.coveragerc /code/backend/manage.py test app
   dce webdev /code/venv/bin/coverage report --rcfile=/code/backend/.coveragerc
   dce webdev /code/venv/bin/coverage html --rcfile=/code/backend/.coveragerc
