@@ -21,13 +21,10 @@
       {% block body %}
       {% endblock %}
     </div>
-    {% if raw_data %}
-      <script type="text/javascript">
-        // This is to populate js context from server side
-        const rawData = {{ raw_data | encodejson }}
-      </script>
-    {% endif %}
     {% block extrascripts %}
     {% endblock %}
+    {% if javascript_bundle %}
+      <script type="text/javascript" src="{% static 'app/webpack-dist/js/' %}{{ javascript_bundle }}.js"></script>
+    {% endif %}
   </body>
 </html>

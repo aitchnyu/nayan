@@ -79,10 +79,10 @@ class CreateIssueTestCase(MyTestCase):
         self.assertEquals(list(form.errors.keys()), ["longitude"])
 
     def test_raw_data_contains_latitude_and_longitude(self):
-        response = self.client.get(reverse("create_issue", args=(60, 60)))
+        response = self.client.get(reverse("create_issue", args=(60.25, 61.75)))
         self.assertEquals(response.status_code, 200)
-        self.assertContains(response, '"lat": 60')
-        self.assertContains(response, '"lng": 60')
+        self.assertContains(response, "60.25")
+        self.assertContains(response, "61.75")
 
     def test_creating_issue_works(self):
         tag_1 = models.Tag.create("Tag 1")
@@ -133,7 +133,7 @@ class ListIsuesTestCase(MyTestCase):
 
         def issue_ids_in_context(response):
             return [
-                issue["id"] for issue in response.context_data["raw_data"]["issues"]
+                issue["id"] for issue in response.context_data["raw_data"]["rawIssues"]
             ]
 
         response = self.client.get(

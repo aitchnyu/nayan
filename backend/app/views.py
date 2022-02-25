@@ -26,7 +26,11 @@ class Request(StockHttpRequest):
 
 class Home(View):
     def get(self, request):
-        return TemplateResponse(request, "app/home.html", {"page_title": "Home"})
+        return TemplateResponse(
+            request,
+            "app/home.html",
+            {"page_title": "Home", "javascript_bundle": "home"},
+        )
 
 
 class SearchPoints(View):
@@ -112,8 +116,9 @@ class ListIssues(View):
             "app/list_issues.html",
             {
                 "page_title": "Issues",  # make some seo friendly title
+                "javascript_bundle": "listissues",
                 "raw_data": {
-                    "issues": [
+                    "rawIssues": [
                         {
                             "id": issue.id,
                             "title": issue.title,
@@ -125,8 +130,8 @@ class ListIssues(View):
                         }
                         for issue in issues
                     ],
-                    "bounds": bounds.response,
-                    "filters": {
+                    "rawBounds": bounds.response,
+                    "rawFilters": {
                         "all": [tag.as_response() for tag in form_data["all_tags"]],
                         "any": [tag.as_response() for tag in form_data["any_tags"]],
                         "none": [tag.as_response() for tag in form_data["none_tags"]],
@@ -145,6 +150,7 @@ class ViewIssue(View):
             "app/view_issue.html",
             {
                 "issue": issue,
+                "javascript_bundle": "viewissue",
                 "tags": issue.tags.all(),
                 "page_title": issue.title,
                 "raw_data": {
@@ -168,8 +174,9 @@ class CreateIssue(View):
             {
                 "form": form,
                 "page_title": "Report Issue",
-                "raw_data": {
-                    "center": {"lat": latitude, "lng": longitude},
+                "javascript_bundle": "createissue",
+                "center": {"center": {"lat": latitude, "lng": longitude}},
+                "tags": {
                     "allTags": all_tags,
                     "selectedTags": [],
                 },
@@ -186,11 +193,14 @@ class CreateIssue(View):
                 {
                     "form": form,
                     "page_title": "Report Issue",
-                    "raw_data": {
+                    "javascript_bundle": "createissue",
+                    "center": {
                         "center": {
                             "lat": form.cleaned_data["latitude"],
                             "lng": form.cleaned_data["longitude"],
-                        },
+                        }
+                    },
+                    "tags": {
                         "allTags": all_tags,
                         "selectedTags": [
                             tag.as_response()

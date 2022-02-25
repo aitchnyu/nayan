@@ -24,7 +24,7 @@
   <section class="columns">
     <div class="column px-0 pb-0 mb-0 columns-height">
       <div id="map-container" style="background-color: #e6e5e0; height: 100%; width: 100%">
-        <div id="list-issues-map"></div>
+        <div id="list-issues-map" data-props="{{ raw_data | encodejson }}"></div>
       </div>
     </div>
     <div class="column scrollable-full-height-container">
@@ -38,7 +38,7 @@
         <!-- This prevents too much layout shift. A div with .show-only-one will be prepended to this, and this will be hidden -->
         <div style="height: 250px;" id="hide-this" class="show-only-one"></div>
       </div>
-      {% for issue in raw_data.issues %}
+      {% for issue in raw_data.rawIssues %}
         <div class="pb-1">
           <a href="{% url 'view_issue' issue.id %}?slug={{ issue.title | slugify }}">
             {{ issue.title }}
@@ -62,6 +62,4 @@
       return {width: div.clientWidth, height: div.clientHeight}
     }
   </script>
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-listissues.js' %}"></script>
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/listissues.js' %}"></script>
 {% endblock %}

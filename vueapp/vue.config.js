@@ -45,27 +45,10 @@ module.exports = {
     const options = module.exports
     const pages = options.pages
     const pageKeys = Object.keys(pages)
-    // Long-term caching
-    const IS_VENDOR = /[\\/]node_modules[\\/]/
     config.optimization
       .splitChunks({
         cacheGroups: {
-          ...pageKeys.map(key => ({
-            name: `vendors-${key}`,
-            priority: -11,
-            chunks: chunk => chunk.name === key,
-            test: IS_VENDOR,
-            enforce: true
-          }))
-          // todo in case I want to extract vue only later
-          // common: {
-          //   name: 'chunk-common',
-          //   priority: -20,
-          //   chunks: 'initial',
-          //   minChunks: 2,
-          //   reuseExistingChunk: true,
-          //   enforce: true
-          // }
+          ...pageKeys.map(key => ({}))
         }
       })
   },

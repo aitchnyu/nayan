@@ -3,7 +3,7 @@
 {% load static %}
 {% block body %}
   <div id="main">
-    <div id="homepage-map">
+    <div id="homepage-map" data-props="{}">
       <!-- This prevents too much layout shift -->
       <div style="height: 75vh; width: 100%; background-color: #e6e5e0">
       </div>
@@ -22,8 +22,4 @@
     This is developed in this <a href="https://github.com/aitchnyu/nayan">Github repo</a>
   </div>
   <br>
-{% endblock %}
-{% block extrascripts %}
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-home.js' %}"></script>
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/home.js' %}"></script>
 {% endblock %}

@@ -5,7 +5,7 @@
   <h2 class="title">Report Issue</h2>
   <form method="post">
     <div>
-        <div id="select-point">
+        <div id="select-point" data-props="{{ center | encodejson }}">
           <!-- This prevents too much layout shift -->
           <div style="height: 75vh; width: 100%; background-color: #e6e5e0">
           </div>
@@ -20,7 +20,7 @@
     {% include 'app/text_input.html' with field=form.title autofocus=True only %}
     <div class="field">
       <label class="label">Tags</label>
-      <div id="select-tags">
+      <div id="select-tags" data-props="{{ tags | encodejson }}">
         <!-- fake input to prevent layout shift -->
         <input type="text" class="input" disabled>
       </div>
@@ -33,8 +33,4 @@
     {% csrf_token %}
     <button type="submit" class="button is-info">Report Issue</button>
   </form>
-{% endblock %}
-{% block extrascripts %}
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-createissue.js' %}"></script>
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/createissue.js' %}"></script>
 {% endblock %}

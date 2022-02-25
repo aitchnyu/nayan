@@ -1,8 +1,9 @@
 {% extends 'app/base.html' %}
 {% load static %}
+{% load extratags %}
 {% block body %}
   <h1 class="title">{{ issue.title }}</h1>
-  <div id="issue-map">
+  <div id="issue-map" data-props="{{ raw_data | encodejson }}">
     <!-- This prevents too much layout shift -->
     <div style="height: 75vh; width: 100%; background-color: #e6e5e0">
     </div>
@@ -15,8 +16,4 @@
     {% endfor %}
   </div>
   <a href="{%  url "list_issues" issue.location.y issue.location.x 1000 %}">Issues at this area</a>
-{% endblock %}
-{% block extrascripts %}
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/vendors-viewissue.js' %}"></script>
-  <script type="text/javascript" src="{% static 'app/webpack-dist/js/viewissue.js' %}"></script>
 {% endblock %}

@@ -18,7 +18,7 @@ def base_url(request: HttpRequest):
 
 @register.filter
 def encodejson(value):
-    return mark_safe(json.dumps(value, cls=DjangoJSONEncoder))
+    return json.dumps(value, cls=DjangoJSONEncoder)
 
 
 # todo For later use
