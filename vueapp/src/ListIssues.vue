@@ -12,6 +12,14 @@
         attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
         :options="{tileSize: 512, zoomOffset: -1}"
       />
+      <l-control position="topleft" class="leaflet-bar">
+        <a title="Recenter map" :href="recenterUrl">
+          🞖
+        </a>
+        <a title="Report issue" :href="`/issues/${centerMirror.lat}/${centerMirror.lng}/create`" target="_blank">
+          🗋
+        </a>
+      </l-control>
       <l-marker
         v-for="issue of issues"
         :key="issue.id"
@@ -35,11 +43,11 @@
     <portal selector="#sidebar-stuff" :prepend="true">
       <div class="show-only-one">
         <div class="buttons">
-        <a class="button is-info create-issue-url" :href="`/issues/${centerMirror.lat}/${centerMirror.lng}/create`">
-          Report Issue
+        <a class="button is-info create-issue-url" :href="`/issues/${centerMirror.lat}/${centerMirror.lng}/create`" target="_blank">
+          🗋 Report Issue
         </a>
         <a class="button is-info recenter-map-url" :href="recenterUrl">
-          Recenter Map
+          🞖 Recenter Map
         </a>
       </div>
       <div class="field">
@@ -72,7 +80,7 @@
 import L from 'leaflet'
 import kebabCase from 'lodash/kebabCase'
 import { Portal } from '@linusborg/vue-simple-portal'
-import { LMap, LTileLayer, LMarker, LPopup, LPolygon } from 'vue2-leaflet'
+import { LControl, LMap, LTileLayer, LMarker, LPopup, LPolygon } from 'vue2-leaflet'
 
 import SelectIssueTags from './SelectIssueTags'
 import CircleIcon from '@/assets/circle.png'
@@ -116,7 +124,7 @@ function redirectPath (path = null, search = null) {
 export default {
   name: 'ListIssues',
   components: {
-    LMap, LTileLayer, LMarker, LPolygon, LPopup, Portal, SelectIssueTags
+    LControl, LMap, LTileLayer, LMarker, LPolygon, LPopup, Portal, SelectIssueTags
   },
   props: {
     allTags: { type: Array, required: true },
@@ -220,4 +228,10 @@ export default {
 <style>
   @import "../node_modules/buefy/dist/buefy.min.css";
   @import "../node_modules/leaflet/dist/leaflet.css";
+
+  /* Icon will be tiny otherwise, and cursor won't match the zoom buttons */
+  .leaflet-bar a {
+    font-size: 22px;
+    cursor: pointer;
+  }
 </style>
