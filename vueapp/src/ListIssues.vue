@@ -26,8 +26,14 @@
         :icon="circleIcon"
         :lat-lng="issue.location"
       >
-        <l-popup>
-          <a :href="`/issues/${issue.id}?slug=${issue.slug}`">{{ issue.title }}</a>
+        <!-- :lat-lng is present here since leafletMap.openPopup(popup) needs it -->
+        <l-popup :ref="`popup-${issue.id}`" :options="{foo:1}" :lat-lng="issue.location">
+          <a :href="`/issues/${issue.id}?slug=${issue.slug}`">
+            {{ issue.title }}
+          </a>
+          <div v-for="tag of issue.tags" :key="tag.slug">
+            {{ tag.name }}
+          </div>
         </l-popup>
       </l-marker>
       <l-marker
@@ -156,7 +162,7 @@ export default {
   },
   async mounted () {
     window.addEventListener('resize', this.onResize)
-    window.listIssues = this
+    window.listissues = this
     const map = this.getLeaflet()
     const that = this
     map.on('move zoom', (e) => {
@@ -220,6 +226,11 @@ export default {
         distance = 100000
       }
       this.recenterUrl = redirectPath(`/issues/${mapCenter.lat}/${mapCenter.lng}/${distance}`, null)
+    },
+    highlightIssue (id) {
+      console.log('highlight', id)
+      const foo = this.$refs[`popup-${id}`][0].mapObject
+      this.getLeaflet().openPopup(foo)
     }
   }
 }

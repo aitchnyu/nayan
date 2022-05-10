@@ -16,11 +16,13 @@ describe('ListIssues.vue', () => {
           {
             id: 1,
             title: 'foo',
+            tags: [{name: 'Tag 1', slug: 'tag-1'}, {name: 'Tag 2', slug: 'tag-2'}],
             location: { lat: 60.1, lng: 60.2 }
           },
           {
             id: 2,
             title: 'foo 2',
+            tags: [{name: 'Tag 1', slug: 'tag-1'}, {name: 'Tag 2', slug: 'tag-2'}],
             location: { lat: 60.3, lng: 60.3 }
           }],
         rawFilters: {
@@ -38,9 +40,10 @@ describe('ListIssues.vue', () => {
     expect(wrapper.vm.width).toBe(5000)
     expect(wrapper.vm.height).toBe(4000)
     await wrapper.vm.$nextTick()
-    // Since the map has corners same as each other, it has a distance of 0
-    // todo remove this
+    // Since the map has corners same as each other inside test environment, it has a distance of 0
     expect(wrapper.vm.recenterUrl).toBe('/issues/9.500365096717932/75.99999999999999/0')
+    wrapper.vm.highlightIssue(2)
+    expect(wrapper.vm.$refs['popup-2'][0].mapObject.isOpen()).toBeTruthy()
   })
 
   it('can filter', async () => {

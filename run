@@ -88,8 +88,12 @@ function vue-test() {
 
 function vue-test-coverage() {
   vue-cli test:unit --coverage
-  read -e -p "Open coverage report in browser? [Y/n] " YN
-  [[ $YN == "y" || $YN == "Y" || $YN == "" ]] && open vueapp/coverage/lcov-report/index.html
+  exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    read -e -p "Open coverage report in browser? [Y/n] " YN
+    [[ $YN == "y" || $YN == "Y" || $YN == "" ]] && open vueapp/coverage/lcov-report/index.html
+  fi
+
 }
 
 function vue-build() {

@@ -40,7 +40,7 @@
       </div>
       {% for issue in raw_data.rawIssues %}
         <div class="pb-1">
-          <a href="{% url 'view_issue' issue.id %}?slug={{ issue.title | slugify }}">
+          <a href="{% url 'view_issue' issue.id %}?slug={{ issue.title | slugify }}" data-id="{{ issue.id }}" onclick="highlightIssue()">
             {{ issue.title }}
           </a>
           <span class="tags" style="display: inline">
@@ -60,6 +60,14 @@
     function getMapDimensions() {
       const div = document.getElementById('map-container')
       return {width: div.clientWidth, height: div.clientHeight}
+    }
+    function highlightIssue() {
+      // Applies only for left click. Let middle click, ctrl+click, right click open normally
+      if(!(this.event.buttons === 0 && !this.event.ctrlKey)){
+        return
+      }
+      this.event.preventDefault()
+      window.listissues.highlightIssue(parseInt(this.event.target.dataset.id))
     }
   </script>
 {% endblock %}
